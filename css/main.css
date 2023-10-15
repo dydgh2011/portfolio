@@ -645,6 +645,42 @@ label > input[type="checkbox"], label > input[type="radio"] {
  *
  * ------------------------------------------------------------------- 
  */
+.button-container {
+	display: flex;
+	flex-direction: row;  /* Align children (buttons) horizontally */
+}
+
+.button.language {
+	color: rgba(255, 255, 255, 0.4);
+	background-color: rgba(255, 0, 119, 0.3);
+	margin: 2rem 0 0 1rem;
+	padding: 1rem;
+	height: 3rem;
+	line-height: 3rem;
+	display: flex;
+	align-items: center;
+	justify-content: center;
+	border-radius: 25px;
+}
+
+.button.language:hover{
+	background-color: rgba(255, 0, 119, 0.5);
+	color: rgba(255, 255, 255, 1);
+
+}
+
+.button.language:active,
+.button.language:focus {
+	background-color: rgba(255, 0, 119, 0.5); /* Or your desired color */
+	color: rgba(255, 255, 255, 0.4); /* Or your desired color */
+	outline: none; /* Removes the default outline on focus */
+}
+
+.button.language.clicked {
+	background-color: rgba(255, 0, 119, 0.5);
+	color: rgba(255, 255, 255, 1);
+}
+
 .button,
 a.button,
 button,
@@ -1095,7 +1131,7 @@ header .row {
 }
 header .top-bar {
 	display: block;
-	background: #000000;
+	background: none;
 	min-width: 220px;
 	min-height: 66px;
 	position: absolute;
@@ -1119,7 +1155,6 @@ header .logo a {
 	color: transparent;
 	width: 92px;
 	height: 15px;
-	background: url("../images/logo.png") no-repeat center;
 	background-size: 92px 15px;
 }
 
@@ -1229,10 +1264,11 @@ header .logo a {
 
 /* dropdown nav */
 .main-navigation {
-	background: #000000;
+	background: rgba(0, 0, 0, 0.45);
+	border-radius: 25px;
 	padding: 24px 30px 42px;
 	margin: 0;
-	width: 100%;
+	width: max-content;
 	height: auto;
 	clear: both;
 	display: none;
@@ -1383,6 +1419,7 @@ header .logo a {
 	text-transform: uppercase;
 	letter-spacing: .25rem;
 }
+
 .intro-content .button:hover, .intro-content .button:focus {
 	border-color: #cc005f;
 }
@@ -1407,6 +1444,7 @@ header .logo a {
 	margin: 0;
 	padding: 0;
 }
+
 .intro-social li {
 	display: inline-block;
 	margin: 0 20px;
@@ -1504,10 +1542,10 @@ header .logo a {
 	margin-left: -30px;
 }
 .intro-info img {
-	height: 9rem;
-	width: 9rem;
+	height: 13rem;
+	width: 13rem;
 	border-radius: 50%;
-	margin: .9rem 0 0 0;
+	margin: .9rem 2rem 0 0;
 	float: left;
 }
 .intro-info .lead {
@@ -2490,8 +2528,9 @@ header .logo a {
  *
  * ------------------------------------------------------------------- 
  */
+
 footer {
-	padding-bottom: 3rem;
+	padding: 3rem 0;
 	font-size: 1.4rem;
 	font-family: "poppins-regular", sans-serif;
 }
@@ -2501,11 +2540,11 @@ footer a, footer a:visited {
 footer a:hover, footer a:focus {
 	color: #FF0077;
 }
-footer .row {
-	max-width: 900px;
-}
 footer .social {
 	text-align: right;
+	margin-left: auto;
+	margin-right: auto;
+	width: 50%;  /* or any specific width */
 }
 footer .footer-social {
 	display: inline-block;
@@ -2597,3 +2636,74 @@ footer .copyright span:last-child::after {
 }
 
 /*# sourceMappingURL=main.css.map */
+
+.projects {
+	margin: 0;
+	padding: 0;
+	display: flex;
+	align-items: center;
+	justify-content: center;
+}
+
+.projects .container {
+	background-color: white;
+	border-radius: 15px;
+	box-shadow: 0px 4px 8px rgba(0, 0, 0, 0.1);
+	overflow: hidden;
+	width: 80%;
+	max-width: 800px;
+}
+
+.projects .header {
+	background-color: #FF0077;
+	color: white;
+	text-align: center;
+	padding: 15px;
+}
+
+.projects .header h1{
+	color: white;
+
+}
+.projects .header h3{
+	color: white;
+	margin: 0;
+}
+
+
+.projects .header h1, .header p {
+	margin: 5px;
+}
+
+.projects .project {
+	display: flex;
+	align-items: center;
+	margin: 20px;
+}
+
+.projects .project-image {
+	width: 50%;
+	max-width: 300px;
+	border-top-left-radius: 15px;
+	border-bottom-left-radius: 15px;
+}
+
+.projects .project-info {
+	padding-left: 20px;
+	width: 50%;
+}
+
+.projects .project-info h2 {
+	color: #FF0077;
+	margin: 0;
+}
+
+.projects .project-info p {
+	text-align: justify;
+}
+
+.projects .project-info .divider {
+	border: 0;
+	border-top: 1px solid #e0e0e0;
+	margin: 0;
+}
