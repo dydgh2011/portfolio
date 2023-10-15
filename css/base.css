@@ -971,11 +971,34 @@ textarea {
 }
 
 .projects .project-info p {
-	text-align: justify;
+	text-align: left
 }
 
 .projects .project-info .divider {
 	border: 0;
 	border-top: 1px solid #e0e0e0;
-	margin: 0;
+	margin: 1rem 0 0 0 ;
+}
+
+.dotted-list {
+	list-style-type: none;
+	padding-left: 0;
+}
+
+.dotted-list li {
+	position: relative;
+	padding-left: 20px;
+	margin-bottom: 5px;
+}
+
+.dotted-list li::before {
+	content: '';
+	position: absolute;
+	left: 0;
+	top: 50%;
+	transform: translateY(-50%);
+	width: 4px;
+	height: 4px;
+	background-color: black;
+	border-radius: 50%;
 }
