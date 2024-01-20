@@ -6,6 +6,7 @@
     --cornsilk: #fefae0ff;
     --licorice: #261c15ff;
     --outer-space: #484a47ff;
+    --navbar-height: 69.19px;
 }
 
 *{
@@ -18,7 +19,7 @@ body::-webkit-scrollbar {
 
 body {
     background-color: var(--tigers-eye);
-
+    width: 100%;
 }
 
 .navbar{
@@ -53,14 +54,14 @@ body {
 
 .intro-back{
     background-color: var(--tigers-eye);
-    height: 100vh;
+    min-height: calc(100vh - var(--navbar-height));
 }
 .intro{
     background-color: var(--tigers-eye);
     color: var(--cornsilk);
     font-size: 5em;
     font-weight: 800;
-    height: 100vh;
+    min-height: calc(100vh - var(--navbar-height));
     
 }
 
@@ -126,19 +127,93 @@ body {
     font-weight: 700;
 }
 
-.container h1 {
-    display: inline-block;
-    position: relative;
+.image {
+    width: 30vw;
+    height: 30vw;
 }
 
-.container h1::after {
-    content: "";
-    display: block;
-    position: absolute;
-    bottom: -7%;
-    left: 50%;
-    width: 150%; /* Adjust 40px to be 20px longer on each side */
-    height: 3px;
-    background-color: var(--cornsilk); /* Adjust the color as needed */
-    transform: translateX(-50%);
+.main_text{
+    font-size: 3em;
+    line-height: 0.9;
+}
+
+.smaller{
+    display: none;
+}
+
+h5 {
+    margin: 0;
+    color: rgb(239, 235, 210)
+}
+
+.explanation {
+    margin-left: 100px;
+}
+
+.more{
+    --bs-btn-color: var(--licorice);
+    --bs-btn-border-color: var(--licorice);
+    --bs-btn-hover-color: var(--cornsilk);
+    --bs-btn-hover-bg: var(--tigers-eye);
+    --bs-btn-hover-border-color: var(--cornsilk);  
+    float: right;
+    margin-top: 20px;
+}
+
+@media (max-width: 1400px) and (min-width:1201px) {
+    .image {
+        width: 40vw;
+        height: 40vw;
+    }
+    .main_text{
+        font-size: 1.8em;
+    }
+    .bigger{
+        display: initial;
+    }
+    .smaller{
+        display: none;
+    }
+}
+
+@media (min-width:992px) {
+    .image {
+        margin-top: 80px;
+    }
+
+}
+
+@media (max-width: 1200px) and (min-width:992px) {
+    .image {
+        width: 40vw;
+        height: 40vw;
+    }
+    .main_text{
+        font-size: 1.8em;
+    }
+    .bigger{
+        display: initial;
+    }
+    .smaller{
+        display: none;
+    }
+}
+
+@media (max-width: 991px) {
+    .image {
+        width: 60vw;
+        height: 60vw;
+    }
+    .explanation ,.more{
+        display: none;
+    }
+    .main_text{
+        font-size: 1.3em;
+    }
+    .bigger{
+        display: none;
+    }
+    .smaller{
+        display: initial;
+    }
 }

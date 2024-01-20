@@ -28,3 +28,4 @@ function toggle(){
       navbarButton.click();
     }
 }
+

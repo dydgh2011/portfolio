@@ -11,40 +11,49 @@
 	<link rel="stylesheet" href="stylesheet/timeLine.css">
 	<link rel="stylesheet" href="stylesheet/hexGrid.css">
 	<link rel="stylesheet" href="stylesheet/aboutCard.css">
-
+	
 </head>
 <body>
 	<!-- nav -->
 	<nav class="navbar navbar-expand-lg sticky-top" id="navigator">
 		<div class="container">
-		  <a class="navbar-brand" href="#" onclick="toggle()">Mark's Portfolio</a>
-		  <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarSupportedContent" aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="Toggle navigation">
+		<a class="navbar-brand" href="#" onclick="toggle()">Mark's Portfolio</a>
+		<button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarSupportedContent" aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="Toggle navigation">
 			<span class="navbar-toggler-icon"></span>
-		  </button>
-		  <div class="collapse navbar-collapse" id="navbarSupportedContent">
+		</button>
+		<div class="collapse navbar-collapse" id="navbarSupportedContent">
 			<ul class="navbar-nav ms-auto mb-2 mb-lg-0">
-			  <li class="nav-item">
+			<li class="nav-item">
 				<a class="nav-link" onclick="scrollToSection('#about')">About</a>
-			  </li>
-			  <li class="nav-item">
+			</li>
+			<li class="nav-item">
 				<a class="nav-link" onclick="scrollToSection('#skills')">Skills</a>
-			  </li>
-			  <li class="nav-item">
+			</li>
+			<li class="nav-item">
 				<a class="nav-link" onclick="scrollToSection('#projects')">Projects</a>
-			  </li>
-			  <li class="nav-item">
+			</li>
+			<li class="nav-item">
 				<a class="nav-link" onclick="scrollToSection('#experiences')">Experiences</a>
-			  </li>
+			</li>
 			</ul>
-		  </div>
 		</div>
-	  </nav>
+		</div>
+	</nav>
 
 	<!-- introduction -->
 	<div class="container-fluid intro-back" id="intro">
-		<div class="container intro">
+		<div class="container intro justify-content-center">
 			<div class="row">
-
+				<div class="col-lg-7 col-12 pt-5">
+					<h5 class="fs-3 fw-semibold">Hello,</h5>
+					<h1 class="fw-bold main_text bigger">I'm &nbsp;&nbsp;Mark</h1>
+					<h1 class="fw-bold main_text smaller">I'm Mark</h1>
+					<h5 class="fs-5 fw-semibold explanation">Junior Full Stack Developer, Game Developer, Mobile App Developer</h5>
+					<button type="button" class="btn btn-outline-secondary more" onclick="scrollToSection('#about')">More</button>
+				</div> 
+				<div class="col-lg-5 col-12 d-flex justify-content-cente pt-lg-5">
+					<img class="image" src="contents/images/avartar_shake.png" alt="avatar_shake.png">		
+				</div>
 			</div>
 		</div>
 	</div>
@@ -122,6 +131,7 @@
 					</div>
 
 				</div>
+		</div>
 		</div>
 	</div>
 
