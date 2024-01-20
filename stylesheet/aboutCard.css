@@ -1,0 +1,42 @@
+:root {
+    --tigers-eye: #bc6c25ff;
+    --earth-yellow: #dda15eff;
+    --cornsilk: #fefae0ff;
+    --licorice: #261c15ff;
+    --outer-space: #484a47ff;
+}
+
+#about-card{
+    width:90%;
+}
+
+@media (max-width: 768px) {
+    #project-card {
+    width: 90%;
+    }
+}
+
+.about .card-title{
+    font-weight: 700;
+}
+
+.about .card-body h2::after {
+    content: "";
+    display: block;
+    position: absolute;
+    left: 50%;
+    width: 30%; 
+    height: 2px;
+    background-color: black; 
+    transform: translateX(-50%);
+}
+
+.info_tag, .info ,.info_link{
+    display: inline;
+    margin: 0; 
+}
+
+.info_link{
+    text-decoration: none; 
+    color: inherit; 
+}

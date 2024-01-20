@@ -7,6 +7,10 @@
 
 	<link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet" >
 	<link rel="stylesheet" href="stylesheet/main.css">
+	<link rel="stylesheet" href="stylesheet/projectCard.css">
+	<link rel="stylesheet" href="stylesheet/timeLine.css">
+	<link rel="stylesheet" href="stylesheet/hexGrid.css">
+	<link rel="stylesheet" href="stylesheet/aboutCard.css">
 
 </head>
 <body>
@@ -26,10 +30,10 @@
 				<a class="nav-link" onclick="scrollToSection('#skills')">Skills</a>
 			  </li>
 			  <li class="nav-item">
-				<a class="nav-link" onclick="scrollToSection('#experiences')">Experiences</a>
+				<a class="nav-link" onclick="scrollToSection('#projects')">Projects</a>
 			  </li>
 			  <li class="nav-item">
-				<a class="nav-link" onclick="scrollToSection('#projects')">Projects</a>
+				<a class="nav-link" onclick="scrollToSection('#experiences')">Experiences</a>
 			  </li>
 			</ul>
 		  </div>
@@ -48,9 +52,76 @@
 	<!-- about -->
 	<div class="container-fluid about-back pt-sm-2 pt-2 pt-md-4" id="about">
 		<div class="container about">
-			<div class="d-flex justify-content-center">
-				<h1 class="display-1">About</h1>
+			<div class="row">
+				<div class="d-flex justify-content-center">
+					<h1 class="display-1">About</h1>
+				</div>
 			</div>
+			<div class="row justify-content-center pt-md-5 pt-3">
+				<div class="card mb-3 pt-4 pb-4" id="about-card">
+					<div class="row g-0 text-center">
+						<div class="card-body pt-0 pb-1">
+							<h2 class="card-title fs-1">I'm A Junior Full Stack Developer</h2>
+						</div>
+					</div>
+					<div class="row">
+
+						<div class="col-md-6 col-12 text-center">	
+							<h4 class="info_tag">Name: </h4>
+							<p class="info">Yongho (Mark) Nam</p>
+						</div>
+						<div class="col-md-6 col-12 text-center">
+							<h4 class="info_tag">Birth: </h4>
+							<p class="info">2002/ May/ 11</p>
+						</div>
+
+					</div>
+					<div class="row">
+
+						<div class="col-md-6 col-12 text-center">
+							<h4 class="info_tag">Email: </h4>
+							<p class="info">dydgh2011@gmail.com</p>
+						</div>
+						<div class="col-md-6 col-12 text-center">
+							<h4 class="info_tag">SNS: </h4>
+							<a href="https://www.instagram.com/bass_in_sink/" class="info_link" target="_blank">
+								<svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-instagram" viewBox="0 0 16 16">
+									<path d="M8 0C5.829 0 5.556.01 4.703.048 3.85.088 3.269.222 2.76.42a3.9 3.9 0 0 0-1.417.923A3.9 3.9 0 0 0 .42 2.76C.222 3.268.087 3.85.048 4.7.01 5.555 0 5.827 0 8.001c0 2.172.01 2.444.048 3.297.04.852.174 1.433.372 1.942.205.526.478.972.923 1.417.444.445.89.719 1.416.923.51.198 1.09.333 1.942.372C5.555 15.99 5.827 16 8 16s2.444-.01 3.298-.048c.851-.04 1.434-.174 1.943-.372a3.9 3.9 0 0 0 1.416-.923c.445-.445.718-.891.923-1.417.197-.509.332-1.09.372-1.942C15.99 10.445 16 10.173 16 8s-.01-2.445-.048-3.299c-.04-.851-.175-1.433-.372-1.941a3.9 3.9 0 0 0-.923-1.417A3.9 3.9 0 0 0 13.24.42c-.51-.198-1.092-.333-1.943-.372C10.443.01 10.172 0 7.998 0zm-.717 1.442h.718c2.136 0 2.389.007 3.232.046.78.035 1.204.166 1.486.275.373.145.64.319.92.599s.453.546.598.92c.11.281.24.705.275 1.485.039.843.047 1.096.047 3.231s-.008 2.389-.047 3.232c-.035.78-.166 1.203-.275 1.485a2.5 2.5 0 0 1-.599.919c-.28.28-.546.453-.92.598-.28.11-.704.24-1.485.276-.843.038-1.096.047-3.232.047s-2.39-.009-3.233-.047c-.78-.036-1.203-.166-1.485-.276a2.5 2.5 0 0 1-.92-.598 2.5 2.5 0 0 1-.6-.92c-.109-.281-.24-.705-.275-1.485-.038-.843-.046-1.096-.046-3.233s.008-2.388.046-3.231c.036-.78.166-1.204.276-1.486.145-.373.319-.64.599-.92s.546-.453.92-.598c.282-.11.705-.24 1.485-.276.738-.034 1.024-.044 2.515-.045zm4.988 1.328a.96.96 0 1 0 0 1.92.96.96 0 0 0 0-1.92m-4.27 1.122a4.109 4.109 0 1 0 0 8.217 4.109 4.109 0 0 0 0-8.217m0 1.441a2.667 2.667 0 1 1 0 5.334 2.667 2.667 0 0 1 0-5.334"/>
+								</svg>
+							</a>
+							<a href="https://www.reddit.com/user/MarkNam" class="info_link" target="_blank">
+								<svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-reddit" viewBox="0 0 16 16">
+									<path d="M6.167 8a.83.83 0 0 0-.83.83c0 .459.372.84.83.831a.831.831 0 0 0 0-1.661m1.843 3.647c.315 0 1.403-.038 1.976-.611a.23.23 0 0 0 0-.306.213.213 0 0 0-.306 0c-.353.363-1.126.487-1.67.487-.545 0-1.308-.124-1.671-.487a.213.213 0 0 0-.306 0 .213.213 0 0 0 0 .306c.564.563 1.652.61 1.977.61zm.992-2.807c0 .458.373.83.831.83s.83-.381.83-.83a.831.831 0 0 0-1.66 0z"/>
+									<path d="M16 8A8 8 0 1 1 0 8a8 8 0 0 1 16 0m-3.828-1.165c-.315 0-.602.124-.812.325-.801-.573-1.9-.945-3.121-.993l.534-2.501 1.738.372a.83.83 0 1 0 .83-.869.83.83 0 0 0-.744.468l-1.938-.41a.2.2 0 0 0-.153.028.2.2 0 0 0-.086.134l-.592 2.788c-1.24.038-2.358.41-3.17.992-.21-.2-.496-.324-.81-.324a1.163 1.163 0 0 0-.478 2.224q-.03.17-.029.353c0 1.795 2.091 3.256 4.669 3.256s4.668-1.451 4.668-3.256c0-.114-.01-.238-.029-.353.401-.181.688-.592.688-1.069 0-.65-.525-1.165-1.165-1.165"/>
+								</svg>
+							</a>
+							<a href="https://www.linkedin.com/in/yongho-nam-6872b21a1/" class="info_link" target="_blank">
+								<svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-linkedin" viewBox="0 0 16 16">
+									<path d="M0 1.146C0 .513.526 0 1.175 0h13.65C15.474 0 16 .513 16 1.146v13.708c0 .633-.526 1.146-1.175 1.146H1.175C.526 16 0 15.487 0 14.854zm4.943 12.248V6.169H2.542v7.225zm-1.2-8.212c.837 0 1.358-.554 1.358-1.248-.015-.709-.52-1.248-1.342-1.248S2.4 3.226 2.4 3.934c0 .694.521 1.248 1.327 1.248zm4.908 8.212V9.359c0-.216.016-.432.08-.586.173-.431.568-.878 1.232-.878.869 0 1.216.662 1.216 1.634v3.865h2.401V9.25c0-2.22-1.184-3.252-2.764-3.252-1.274 0-1.845.7-2.165 1.193v.025h-.016l.016-.025V6.169h-2.4c.03.678 0 7.225 0 7.225z"/>
+								</svg>
+							</a>
+						</div>
+						
+					</div>
+					<div class="row">
+
+						<div class="col-12 text-center">
+							<h4 class="info_tag">Archives: </h4>
+							<a href="https://github.com/dydgh2011" class="info_link" target="_blank">
+								<svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-github" viewBox="0 0 16 16">
+									<path d="M8 0C3.58 0 0 3.58 0 8c0 3.54 2.29 6.53 5.47 7.59.4.07.55-.17.55-.38 0-.19-.01-.82-.01-1.49-2.01.37-2.53-.49-2.69-.94-.09-.23-.48-.94-.82-1.13-.28-.15-.68-.52-.01-.53.63-.01 1.08.58 1.23.82.72 1.21 1.87.87 2.33.66.07-.52.28-.87.51-1.07-1.78-.2-3.64-.89-3.64-3.95 0-.87.31-1.59.82-2.15-.08-.2-.36-1.02.08-2.12 0 0 .67-.21 2.2.82.64-.18 1.32-.27 2-.27s1.36.09 2 .27c1.53-1.04 2.2-.82 2.2-.82.44 1.1.16 1.92.08 2.12.51.56.82 1.27.82 2.15 0 3.07-1.87 3.75-3.65 3.95.29.25.54.73.54 1.48 0 1.07-.01 1.93-.01 2.2 0 .21.15.46.55.38A8.01 8.01 0 0 0 16 8c0-4.42-3.58-8-8-8"/>
+								</svg>
+							</a>
+							<a href="https://github.com/Rohan-Mark-Software" class="info_link" target="_blank">
+								<svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-github" viewBox="0 0 16 16">
+									<path d="M8 0C3.58 0 0 3.58 0 8c0 3.54 2.29 6.53 5.47 7.59.4.07.55-.17.55-.38 0-.19-.01-.82-.01-1.49-2.01.37-2.53-.49-2.69-.94-.09-.23-.48-.94-.82-1.13-.28-.15-.68-.52-.01-.53.63-.01 1.08.58 1.23.82.72 1.21 1.87.87 2.33.66.07-.52.28-.87.51-1.07-1.78-.2-3.64-.89-3.64-3.95 0-.87.31-1.59.82-2.15-.08-.2-.36-1.02.08-2.12 0 0 .67-.21 2.2.82.64-.18 1.32-.27 2-.27s1.36.09 2 .27c1.53-1.04 2.2-.82 2.2-.82.44 1.1.16 1.92.08 2.12.51.56.82 1.27.82 2.15 0 3.07-1.87 3.75-3.65 3.95.29.25.54.73.54 1.48 0 1.07-.01 1.93-.01 2.2 0 .21.15.46.55.38A8.01 8.01 0 0 0 16 8c0-4.42-3.58-8-8-8"/>
+								</svg>
+							</a>
+						</div>
+						
+					</div>
+
+				</div>
 		</div>
 	</div>
 
@@ -62,63 +133,233 @@
 					<h1 class="display-1">Skills</h1>
 				</div>
 			</div>
-		</div>
-	</div>
 
-	<!-- experiences -->
-	<div class="container-fluid experiences-back pt-sm-2 pt-2 pt-md-4" id="experiences">
-		<div class="container experiences">
-			<div class="row">
-				<div class="d-flex justify-content-center">
-					<h1 class="display-1">Experiences</h1>
+			<div class="row pt-4 hexGroup">
+				<!-- Frontend -->
+				<div class="col-lg-3 col-12 col-sm-12 pb-5">
+					<h4 class="hexCategory">Frontend</h4>
+
+					<div class="grid">
+						<ul id="hexGrid">
+
+							<li class="hex">
+								<div class="hexIn">
+									<div class="hexLink">
+										<div class='img' 
+										style='
+										background-image: url(contents/images/html-5.png);
+										background-size: 75%;
+										'></div>
+									</div>
+								</div>
+							</li>
+							
+							<li class="hex">
+								<div class="hexIn">
+									<div class="hexLink">
+										<div class='img' 
+										style='
+										background-image: url(contents/images/css-3.png);
+										background-size: 75%;
+										'></div>
+									</div>
+								</div>
+							</li>
+							
+							<li class="hex">
+								<div class="hexIn">
+									<div class="hexLink">
+										<div class='img' 
+										style='background-image: url(contents/images/bootstrap-5-logo-icon.webp);'></div>
+									</div>
+								</div>
+							</li>
+							
+							<li class="hex">
+								<div class="hexIn">
+									<div class="hexLink">
+										<div class='img' 
+										style='background-image: url(contents/images/handlebarsjs_logo_icon_169054.png); 
+										background-size: 100%;
+										'></div>
+									</div>
+								</div>
+							</li>
+							
+							
+						</ul>
+					</div>
 				</div>
+
+				<!-- Backend -->
+				<div class="col-lg-3 col-12 col-sm-12 pb-5">
+					<h4 class="hexCategory">Backend</h4>
+
+					<div class="grid">
+						<ul id="hexGrid">
+							
+							<li class="hex">
+								<div class="hexIn">
+									<div class="hexLink">
+										<div class='img' 
+										style='background-image: url(contents/images/js.png); background-size: 60%;'></div>
+									</div>
+								</div>
+							</li>
+							
+							<li class="hex">
+								<div class="hexIn">
+									<div class="hexLink">
+										<div class='img' 
+										style='background-image: url(contents/images/typescript.png); background-size: 60%;'></div>
+									</div>
+								</div>
+							</li>
+							
+							<li class="hex">
+								<div class="hexIn">
+									<div class="hexLink">
+										<div class='img' 
+										style='background-image: url(contents/images/python.png);background-size: 70%;'></div>
+									</div>
+								</div>
+							</li>
+							
+							<li class="hex">
+								<div class="hexIn">
+									<div class="hexLink">
+										<div class='img' 
+										style='background-image: url(contents/images/express-js.png); background-size: 75%;'></div>
+									</div>
+								</div>
+							</li>
+							
+							<li class="hex">
+								<div class="hexIn">
+									<div class="hexLink">
+										<div class='img' 
+										style='background-image: url(contents/images/mysql.png); background-size: 70%;'></div>
+									</div>
+								</div>
+							</li>
+							
+							<li class="hex">
+								<div class="hexIn">
+									<div class="hexLink">
+										<div class='img' 
+										style='background-image: url(contents/images/java.png); background-size: 75%;'></div>
+									</div>
+								</div>
+							</li>
+							
+						</ul>
+					</div>
+				</div>
+
+				<!-- DevOps -->
+				<div class="col-lg-3 col-12 col-sm-12 pb-5">
+					<h4 class="hexCategory">DevOps</h4>
+
+					<div class="grid">
+						<ul id="hexGrid">
+
+							<li class="hex">
+								<div class="hexIn">
+									<div class="hexLink">
+										<div class='img' 
+										style='background-image: url(contents/images/git_logo.png); background-size: 120%;'></div>
+									</div>
+								</div>
+							</li>
+							
+							<li class="hex">
+								<div class="hexIn">
+									<div class="hexLink">
+										<div class='img' 
+										style='background-image: url(contents/images/github_logo.png); background-size: 70%;'></div>
+									</div>
+								</div>
+							</li>
+							
+							<li class="hex">
+								<div class="hexIn">
+									<div class="hexLink">
+										<div class='img' 
+										style='background-image: url(contents/images/aws.png); background-size: 85%;'></div>
+									</div>
+								</div>
+							</li>
+							
+							<li class="hex">
+								<div class="hexIn">
+									<div class="hexLink">
+										<div class='img' 
+										style='background-image: url(contents/images/docker.png); background-size: 75%;'></div>
+									</div>
+								</div>
+							</li>
+							
+						</ul>
+					</div>
+				</div>
+
+				<!-- Etc. -->
+				<div class="col-lg-3 col-12 col-sm-12 pb-5">
+					<h4 class="hexCategory">Etc.</h4>
+
+					<div class="grid">
+						<ul id="hexGrid">
+
+							<li class="hex">
+								<div class="hexIn">
+									<div class="hexLink">
+										<div class='img' 
+										style='background-image: url(contents/images/C_logo.svg.png); background-size: 72%;'></div>
+									</div>
+								</div>
+							</li>
+							
+							<li class="hex">
+								<div class="hexIn">
+									<div class="hexLink">
+										<div class='img' 
+										style='background-image: url(contents/images/c-.png);'></div>
+									</div>
+								</div>
+							</li>
+							
+							<li class="hex">
+								<div class="hexIn">
+									<div class="hexLink">
+										<div class='img' 
+										style='background-image: url(contents/images/c-sharp.png);'></div>
+									</div>
+								</div>
+							</li>
+							
+							<li class="hex">
+								<div class="hexIn">
+									<div class="hexLink">
+										<div class='img' 
+										style='background-image: url(contents/images/arduino-logo-1.png); background-size: 75%;'></div>
+									</div>
+								</div>
+							</li>
+							
+							<li class="hex">
+								<div class="hexIn">
+									<div class="hexLink">
+										<div class='img' 
+										style='background-image: url(contents/images/openai.png); background-size: 75%;'></div>
+									</div>
+								</div>
+							</li>
+							
+						</ul>
+					</div>
+				</div>
+
 			</div>
-			<section style="background-color: transparent;">
-				<div class="container py-5">
-				<div class="main-timeline">
-					<div class="timeline left">
-					<div class="card">
-						<div class="card-body p-4">
-						<h3>Graduate Brooklyn College High School</h3>
-						<p class="mb-0">Lorem ipsum dolor sit amet, quo ei simul congue exerci, ad nec admodum perfecto
-							mnesarchum, vim ea mazim fierent detracto. Ea quis iuvaret expetendis his, te elit voluptua
-							dignissim per, habeo iusto primis ea eam.</p>
-						</div>
-					</div>
-					</div>
-					<div class="timeline right">
-					<div class="card">
-						<div class="card-body p-4">
-						<h3>Enrolled University of Toronto</h3>
-						<p class="mb-0">Lorem ipsum dolor sit amet, quo ei simul congue exerci, ad nec admodum perfecto
-							mnesarchum, vim ea mazim fierent detracto. Ea quis iuvaret expetendis his, te elit voluptua
-							dignissim per, habeo iusto primis ea eam.</p>
-						</div>
-					</div>
-					</div>
-					<div class="timeline left">
-					<div class="card">
-						<div class="card-body p-4">
-						<h3>DearHacks</h3>
-						<p class="mb-0">Lorem ipsum dolor sit amet, quo ei simul congue exerci, ad nec admodum perfecto
-							mnesarchum, vim ea mazim fierent detracto. Ea quis iuvaret expetendis his, te elit voluptua
-							dignissim per, habeo iusto primis ea eam.</p>
-						</div>
-					</div>
-					</div>
-					<div class="timeline right">
-					<div class="card">
-						<div class="card-body p-4">
-						<h3>Certification</h3>
-						<p class="mb-0">Lorem ipsum dolor sit amet, quo ei simul congue exerci, ad nec admodum perfecto
-							mnesarchum, vim ea mazim fierent detracto. Ea quis iuvaret expetendis his, te elit voluptua
-							dignissim per, habeo iusto primis ea eam.</p>
-						</div>
-					</div>
-					</div>
-				</div>
-				</div>
-			</section>			
 		</div>
 	</div>
 
@@ -135,7 +376,7 @@
 				<div class="card mb-3 pt-4 pb-4" id="project-card">
 					<div class="row g-0 text-center">
 						<div class="card-body pt-0 pb-1">
-							<h2 class="card-title fs-1">Can It Run</h2>
+							<h2 class="card-title fs-1">Can It Run?</h2>
 						</div>
 					</div>
 					<div class="row g-0">
@@ -155,16 +396,24 @@
 								</p>
 							</div>
 							<ul class="list-group list-group-flush">
-								<li class="list-group-item">Date - 12/20/2023 to 20/01/2024 </li>
+								<li class="list-group-item">Date - 2023/Dec/20 ~ 2024/Jan/20 </li>
 								<li class="list-group-item">Backend - Express.js</li>
 								<li class="list-group-item">Frontend - Template Engine (Handlebars)</li>
 								<li class="list-group-item">Database - MySQL, AWS RDS</li>
 								<li class="list-group-item">Deployment - AWS EC2</li>
-							  </ul>transparent; /* Adjust
-							  <div class="card-body">
-								<a href="canitrun.ca" class="card-link">Website link</a>
-								<a href="https://github.com/Rohan-Mark-Software/can_it_run.git" class="card-link">Github link</a>
-							  </div>
+								</ul>
+								<div class="card-body">
+								<svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-link-45deg" viewBox="0 0 16 16">
+									<path d="M4.715 6.542 3.343 7.914a3 3 0 1 0 4.243 4.243l1.828-1.829A3 3 0 0 0 8.586 5.5L8 6.086a1 1 0 0 0-.154.199 2 2 0 0 1 .861 3.337L6.88 11.45a2 2 0 1 1-2.83-2.83l.793-.792a4 4 0 0 1-.128-1.287z"/>
+									<path d="M6.586 4.672A3 3 0 0 0 7.414 9.5l.775-.776a2 2 0 0 1-.896-3.346L9.12 3.55a2 2 0 1 1 2.83 2.83l-.793.792c.112.42.155.855.128 1.287l1.372-1.372a3 3 0 1 0-4.243-4.243z"/>
+									</svg>
+								<a href="canitrun.ca" class="card-link">: Website link</a>
+								&nbsp;&nbsp;&nbsp;
+								<svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-github" viewBox="0 0 16 16">
+									<path d="M8 0C3.58 0 0 3.58 0 8c0 3.54 2.29 6.53 5.47 7.59.4.07.55-.17.55-.38 0-.19-.01-.82-.01-1.49-2.01.37-2.53-.49-2.69-.94-.09-.23-.48-.94-.82-1.13-.28-.15-.68-.52-.01-.53.63-.01 1.08.58 1.23.82.72 1.21 1.87.87 2.33.66.07-.52.28-.87.51-1.07-1.78-.2-3.64-.89-3.64-3.95 0-.87.31-1.59.82-2.15-.08-.2-.36-1.02.08-2.12 0 0 .67-.21 2.2.82.64-.18 1.32-.27 2-.27s1.36.09 2 .27c1.53-1.04 2.2-.82 2.2-.82.44 1.1.16 1.92.08 2.12.51.56.82 1.27.82 2.15 0 3.07-1.87 3.75-3.65 3.95.29.25.54.73.54 1.48 0 1.07-.01 1.93-.01 2.2 0 .21.15.46.55.38A8.01 8.01 0 0 0 16 8c0-4.42-3.58-8-8-8"/>
+								</svg>
+								<a href="https://github.com/Rohan-Mark-Software/can_it_run.git" class="card-link">: Source link</a>
+								</div>
 						</div>
 					</div>
 				</div>
@@ -179,13 +428,31 @@
 					</div>
 					<div class="row g-0">
 						<div class="col-md-4">
-							<img src="contents/images/can_it_run_character.png" class="img-fluid rounded-start" alt="can_it_run_character.png">
+							<img src="contents/images/portfolio.png" class="img-fluid rounded-start" alt="portfolio.png">
 						</div>
 						<div class="col-md-8">
 							<div class="card-body">
-								<p class="card-text">cant it run info.</p>
-								<p class="card-text"><small class="text-body-secondary">Last updated 3 mins ago</small></p>
+								<p class="card-text">
+									Can It Run 프로젝트를 제작하면서 부족했던 프론트엔드 경험을 효과적으로 보완했습니다. Bootstrap 프레임워크를 활용하여 빠르고 효율적으로 사용자 인터페이스를 개발하였습니다.
+									<br>
+									<br>
+									이 프로젝트를 통해 반응형 웹사이트를 만드는 과정에서 다양한 디바이스에서의 사용자 경험을 고려했고, 사용자들이 쉽게 접근할 수 있는 웹 디자인을 구현하는 방법을 습득했습니다. 또한, Bootstrap을 통해 강력한 디자인 컴포넌트를 활용하여 시각적으로 매력적이며 효과적인 웹사이트를 완성했습니다.
+									<br>
+									<br>
+									이러한 경험을 바탕으로 미래의 프로젝트에서도 뛰어난 프론트엔드 개발 능력을 발휘할 수 있을 것으로 기대합니다.								
+								</p>
 							</div>
+							<ul class="list-group list-group-flush">
+								<li class="list-group-item">Date - 2024/Jan/10 ~ 2024/Jan/22 </li>
+								<li class="list-group-item">Frontend - Bootstrap</li>
+								<li class="list-group-item">Deployment - Github Pages</li>
+								</ul>
+								<div class="card-body">
+								<svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-github" viewBox="0 0 16 16">
+									<path d="M8 0C3.58 0 0 3.58 0 8c0 3.54 2.29 6.53 5.47 7.59.4.07.55-.17.55-.38 0-.19-.01-.82-.01-1.49-2.01.37-2.53-.49-2.69-.94-.09-.23-.48-.94-.82-1.13-.28-.15-.68-.52-.01-.53.63-.01 1.08.58 1.23.82.72 1.21 1.87.87 2.33.66.07-.52.28-.87.51-1.07-1.78-.2-3.64-.89-3.64-3.95 0-.87.31-1.59.82-2.15-.08-.2-.36-1.02.08-2.12 0 0 .67-.21 2.2.82.64-.18 1.32-.27 2-.27s1.36.09 2 .27c1.53-1.04 2.2-.82 2.2-.82.44 1.1.16 1.92.08 2.12.51.56.82 1.27.82 2.15 0 3.07-1.87 3.75-3.65 3.95.29.25.54.73.54 1.48 0 1.07-.01 1.93-.01 2.2 0 .21.15.46.55.38A8.01 8.01 0 0 0 16 8c0-4.42-3.58-8-8-8"/>
+								</svg>
+								<a href="https://github.com/Rohan-Mark-Software/can_it_run.git" class="card-link">: Website link</a>
+								</div>
 						</div>
 					</div>
 				</div>
@@ -194,12 +461,165 @@
 		</div>
 	</div>
 
-	<!-- footer -->
-	<div class="container-fluid footer-back pt-sm-2 pt-2 pt-md-4" id="footer">
-		<div class="container footer">
+	<!-- experiences -->
+	<div class="container-fluid experiences-back pt-sm-2 pt-2 pt-md-4" id="experiences">
+		<div class="container experiences">
+			<div class="row">
+				<div class="d-flex justify-content-center">
+					<h1 class="display-1">Experiences</h1>
+				</div>
+			</div>
+			<section style="background-color: transparent;">
+				<div class="container py-5">
+				<div class="main-timeline-2">
+					<div class="timeline-2 left-2">
+					<div class="card">
+						<img src="contents/images/brooklyn_logo.png" class="card-img-top"
+						alt="Responsive image">
+						<div class="card-body p-4">
+						<h4 class="fw-bold mb-4">Brooklyn College 고등학교 졸업</h4>
+						<p class="text-muted mb-4"><i class="far fa-clock" aria-hidden="true"></i> 2022</p>
+						<p class="mb-0">
+							고등학교 1학년부터 웹 개발자로의 꿈을 향해 노력하여 평균 95점으로 Brooklyn College 고등학교를 졸업했습니다.
+						</p>
+						</div>
+					</div>
+					</div>
+					<div class="timeline-2 right-2">
+					<div class="card">
+						<img src="contents/images/ufot.png" class="card-img-top"
+						alt="Responsive image">
+						<div class="card-body p-4">
+						<h4 class="fw-bold mb-4">토론토 대학 컴퓨터 공학과 입학</h4>
+						<p class="text-muted mb-4"><i class="far fa-clock" aria-hidden="true"></i> 2022</p>
+						<p class="mb-0">
+							개발 분야에서 더 전문적인 지식을 쌓기 위해 University of Toronto Mississauga의 Computer Science 학과에 입학했습니다. 현재 1학년을 3.3/4.0의 GPA로 성공적으로 마무리했습니다.
+						</p>
+						</div>
+					</div>
+					</div>
+					<div class="timeline-2 left-2">
+					<div class="card">
+						<img src="contents/images/deerhack.webp" class="card-img-top"
+						alt="Responsive image">
+						<div class="card-body p-4">
+						<h4 class="fw-bold mb-4">UofT 주최 DearHack 해카톤 참여</h4>
+						<p class="text-muted mb-4"><i class="far fa-clock" aria-hidden="true"></i> 2023</p>
+						<p class="mb-0">
+							여름 방학 동안 UofT 주최 DearHack 해커톤에 참여했습니다. 비록 우승은 하지 못했지만, 팀워크와 앞으로의 해커톤 참가를 위한 중요한 경험을 쌓을 수 있었습니다.
+						</p>
+						</div>
+					</div>
+					</div>
+					<div class="timeline-2 right-2">
+					<div class="card">
+						<img src="contents/images/rm.png" class="card-img-top"
+						alt="Responsive image">
+						<div class="card-body p-4">
+						<h4 class="fw-bold mb-4"> 대학 동기와 Rohan-Mark-Software 창립</h4>
+						<p class="text-muted mb-4"><i class="far fa-clock" aria-hidden="true"></i> 2023</p>
+						<p class="mb-0">
+							대학 동기인 Rohan Nair와 함께 Rohan-Mark-Software를 창립했습니다. 이 팀을 통해 아이디어 공유와 협업을 통해 개발의 다양한 측면에서 경험을 쌓을 수 있었습니다.
+						</p>
+						</div>
+					</div>
+					</div>
+					<div class="timeline-2 left-2">
+					<div class="card">
+						<img src="contents/images/qnet.png" class="card-img-top"
+						alt="Responsive image">
+						<div class="card-body p-4">
+						<h4 class="fw-bold mb-4">정보처리기능사 국가기술 자격증 취득</h4>
+						<p class="text-muted mb-4"><i class="far fa-clock" aria-hidden="true"></i> 2023</p>
+						<p class="mb-0">
+							IT 산업기능요원 신청을 위해 정보처리기능사 국가기술 자격증을 취득했습니다. 이를 통해 개발자로서 부족한 부분을 보충하고 새로운 지식을 습득하는 소중한 경험이었습니다
+						</p>
+						</div>
+					</div>
+					</div>
+				</div>
+				</div>
+			</section>
+			
+
 
 		</div>
 	</div>
+
+	<!-- footer -->
+	<footer class="text-center footer">
+		<!-- Grid container -->
+		<div class="container pt-4">
+		<!-- Section: Social media -->
+		<section class="mb-4">
+			<!-- github -->
+			<a
+			data-mdb-ripple-init
+			class="btn btn-link btn-floating btn-lg text-body m-1"
+			href="https://github.com/dydgh2011"
+			target="_blank"
+			role="button"
+			data-mdb-ripple-color="dark"
+			>
+				<svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-github" viewBox="0 0 16 16">
+					<path d="M8 0C3.58 0 0 3.58 0 8c0 3.54 2.29 6.53 5.47 7.59.4.07.55-.17.55-.38 0-.19-.01-.82-.01-1.49-2.01.37-2.53-.49-2.69-.94-.09-.23-.48-.94-.82-1.13-.28-.15-.68-.52-.01-.53.63-.01 1.08.58 1.23.82.72 1.21 1.87.87 2.33.66.07-.52.28-.87.51-1.07-1.78-.2-3.64-.89-3.64-3.95 0-.87.31-1.59.82-2.15-.08-.2-.36-1.02.08-2.12 0 0 .67-.21 2.2.82.64-.18 1.32-.27 2-.27s1.36.09 2 .27c1.53-1.04 2.2-.82 2.2-.82.44 1.1.16 1.92.08 2.12.51.56.82 1.27.82 2.15 0 3.07-1.87 3.75-3.65 3.95.29.25.54.73.54 1.48 0 1.07-.01 1.93-.01 2.2 0 .21.15.46.55.38A8.01 8.01 0 0 0 16 8c0-4.42-3.58-8-8-8"/>
+				</svg>
+			</a>
+
+			<!-- instagram -->
+			<a
+			data-mdb-ripple-init
+			class="btn btn-link btn-floating btn-lg text-body m-1"
+			href="ttps://www.instagram.com/bass_in_sink/"
+			target="_blank"
+			role="button"
+			data-mdb-ripple-color="dark"
+			>
+				<svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-instagram" viewBox="0 0 16 16">
+					<path d="M8 0C5.829 0 5.556.01 4.703.048 3.85.088 3.269.222 2.76.42a3.9 3.9 0 0 0-1.417.923A3.9 3.9 0 0 0 .42 2.76C.222 3.268.087 3.85.048 4.7.01 5.555 0 5.827 0 8.001c0 2.172.01 2.444.048 3.297.04.852.174 1.433.372 1.942.205.526.478.972.923 1.417.444.445.89.719 1.416.923.51.198 1.09.333 1.942.372C5.555 15.99 5.827 16 8 16s2.444-.01 3.298-.048c.851-.04 1.434-.174 1.943-.372a3.9 3.9 0 0 0 1.416-.923c.445-.445.718-.891.923-1.417.197-.509.332-1.09.372-1.942C15.99 10.445 16 10.173 16 8s-.01-2.445-.048-3.299c-.04-.851-.175-1.433-.372-1.941a3.9 3.9 0 0 0-.923-1.417A3.9 3.9 0 0 0 13.24.42c-.51-.198-1.092-.333-1.943-.372C10.443.01 10.172 0 7.998 0zm-.717 1.442h.718c2.136 0 2.389.007 3.232.046.78.035 1.204.166 1.486.275.373.145.64.319.92.599s.453.546.598.92c.11.281.24.705.275 1.485.039.843.047 1.096.047 3.231s-.008 2.389-.047 3.232c-.035.78-.166 1.203-.275 1.485a2.5 2.5 0 0 1-.599.919c-.28.28-.546.453-.92.598-.28.11-.704.24-1.485.276-.843.038-1.096.047-3.232.047s-2.39-.009-3.233-.047c-.78-.036-1.203-.166-1.485-.276a2.5 2.5 0 0 1-.92-.598 2.5 2.5 0 0 1-.6-.92c-.109-.281-.24-.705-.275-1.485-.038-.843-.046-1.096-.046-3.233s.008-2.388.046-3.231c.036-.78.166-1.204.276-1.486.145-.373.319-.64.599-.92s.546-.453.92-.598c.282-.11.705-.24 1.485-.276.738-.034 1.024-.044 2.515-.045zm4.988 1.328a.96.96 0 1 0 0 1.92.96.96 0 0 0 0-1.92m-4.27 1.122a4.109 4.109 0 1 0 0 8.217 4.109 4.109 0 0 0 0-8.217m0 1.441a2.667 2.667 0 1 1 0 5.334 2.667 2.667 0 0 1 0-5.334"/>
+				</svg>
+			</a>
+
+			<!-- linkedin -->
+			<a
+			data-mdb-ripple-init
+			class="btn btn-link btn-floating btn-lg text-body m-1"
+			href="https://www.linkedin.com/in/yongho-nam-6872b21a1/?originalSubdomain=ca"
+			target="_blank"
+			role="button"
+			data-mdb-ripple-color="dark"
+			>
+				<svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-linkedin" viewBox="0 0 16 16">
+					<path d="M0 1.146C0 .513.526 0 1.175 0h13.65C15.474 0 16 .513 16 1.146v13.708c0 .633-.526 1.146-1.175 1.146H1.175C.526 16 0 15.487 0 14.854zm4.943 12.248V6.169H2.542v7.225zm-1.2-8.212c.837 0 1.358-.554 1.358-1.248-.015-.709-.52-1.248-1.342-1.248S2.4 3.226 2.4 3.934c0 .694.521 1.248 1.327 1.248zm4.908 8.212V9.359c0-.216.016-.432.08-.586.173-.431.568-.878 1.232-.878.869 0 1.216.662 1.216 1.634v3.865h2.401V9.25c0-2.22-1.184-3.252-2.764-3.252-1.274 0-1.845.7-2.165 1.193v.025h-.016l.016-.025V6.169h-2.4c.03.678 0 7.225 0 7.225z"/>
+				</svg>
+			</a>
+
+			<!-- reddit -->
+			<a
+			data-mdb-ripple-init
+			class="btn btn-link btn-floating btn-lg text-body m-1"
+			href="https://www.reddit.com/user/MarkNam"
+			target="_blank"
+			role="button"
+			data-mdb-ripple-color="dark"
+			>
+				<svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-reddit" viewBox="0 0 16 16">
+					<path d="M6.167 8a.83.83 0 0 0-.83.83c0 .459.372.84.83.831a.831.831 0 0 0 0-1.661m1.843 3.647c.315 0 1.403-.038 1.976-.611a.23.23 0 0 0 0-.306.213.213 0 0 0-.306 0c-.353.363-1.126.487-1.67.487-.545 0-1.308-.124-1.671-.487a.213.213 0 0 0-.306 0 .213.213 0 0 0 0 .306c.564.563 1.652.61 1.977.61zm.992-2.807c0 .458.373.83.831.83s.83-.381.83-.83a.831.831 0 0 0-1.66 0z"/>
+					<path d="M16 8A8 8 0 1 1 0 8a8 8 0 0 1 16 0m-3.828-1.165c-.315 0-.602.124-.812.325-.801-.573-1.9-.945-3.121-.993l.534-2.501 1.738.372a.83.83 0 1 0 .83-.869.83.83 0 0 0-.744.468l-1.938-.41a.2.2 0 0 0-.153.028.2.2 0 0 0-.086.134l-.592 2.788c-1.24.038-2.358.41-3.17.992-.21-.2-.496-.324-.81-.324a1.163 1.163 0 0 0-.478 2.224q-.03.17-.029.353c0 1.795 2.091 3.256 4.669 3.256s4.668-1.451 4.668-3.256c0-.114-.01-.238-.029-.353.401-.181.688-.592.688-1.069 0-.65-.525-1.165-1.165-1.165"/>
+				</svg>
+			</a>
+		</section>
+		<!-- Section: Social media -->
+		</div>
+		<!-- Grid container -->
+	
+		<!-- Copyright -->
+		<div class="text-center p-3 style="background-color: gray;"">
+		© 2020 Copyright:
+		<a class="text-body" href="https://mdbootstrap.com/">MDBootstrap.com</a>
+		</div>
+		<!-- Copyright -->
+	</footer>
 
 	<script src="https://cdn.jsdelivr.net/npm/@popperjs/core@2.9.1/dist/umd/popper.min.js"></script>
 	<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>

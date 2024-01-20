@@ -1,0 +1,32 @@
+:root {
+    --tigers-eye: #bc6c25ff;
+    --earth-yellow: #dda15eff;
+    --cornsilk: #fefae0ff;
+    --licorice: #261c15ff;
+    --outer-space: #484a47ff;
+}
+
+#project-card{
+    width:70%;
+}
+
+@media (max-width: 768px) {
+    #project-card {
+    width: 90%;
+    }
+}
+
+.card-title{
+    font-weight: 700;
+}
+
+.card-body h2::after {
+    content: "";
+    display: block;
+    position: absolute;
+    left: 50%;
+    width: 30%; /* Adjust 40px to be 20px longer on each side */
+    height: 2px;
+    background-color: black; /* Adjust the color as needed */
+    transform: translateX(-50%);
+}
