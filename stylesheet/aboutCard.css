@@ -8,6 +8,8 @@
 
 #about-card{
     width:90%;
+    background-color: var(--cornsilk);
+    color: var(--licorice);
 }
 
 @media (max-width: 768px) {
@@ -27,21 +29,35 @@
     left: 50%;
     width: 30%; 
     height: 2px;
-    background-color: black; 
+    background-color: var(--licorice); 
     transform: translateX(-50%);
 }
 
-.info_tag, .info ,.info_link{
+.info_tag, .info{
     display: inline;
     margin: 0; 
+}
+
+.info{
+    font-size: 1.3em;
 }
 
 .info_link{
     text-decoration: none; 
     color: inherit; 
+    margin-left: 3px;
+}
+
+.info_links{
+    height: 35.19px;
+}
+
+.info_link svg {
+    margin-top: -10px;
 }
 
 .about h1 {
+
     display: inline-block;
     position: relative;
 }

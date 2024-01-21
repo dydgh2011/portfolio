@@ -8,6 +8,8 @@
 
 #project-card{
     width:70%;
+    background-color: var(--cornsilk);
+    color: var(--licorice);
 }
 
 @media (max-width: 768px) {
@@ -27,7 +29,7 @@
     left: 50%;
     width: 30%; /* Adjust 40px to be 20px longer on each side */
     height: 2px;
-    background-color: black; /* Adjust the color as needed */
+    background-color: var(--licorice); /* Adjust the color as needed */
     transform: translateX(-50%);
 }
 
@@ -46,4 +48,54 @@
     height: 3px;
     background-color: var(--cornsilk); /* Adjust the color as needed */
     transform: translateX(-50%);
+}
+
+.list-group ,.list-group-item{
+    background-color: var(--cornsilk); /* Adjust the color as needed */
+    color: var(--licorice);
+    border-bottom: none;
+}
+
+.card-link{
+    font-size: 1.4em !important;
+    font-weight: 600 !important;
+    text-decoration: none;
+    color: var(--earth-yellow);
+    background-color: transparent;
+    border: none;
+    padding: 0;
+    margin: 0;
+    font: inherit;
+}
+
+.card-link:visited {
+    color: var(--earth-yellow);
+    text-decoration: none;
+}
+
+.topic, .intopic {
+    display: inline;
+}
+
+.topic{
+    font-size: 1.3em;
+    font-weight: 600;
+}
+
+.intopic{
+    font-size: 1.1em;
+    font-weight: 400;
+}
+
+.list-group{
+    border-top: 2px solid var(--licorice);
+    border-bottom: 2px solid var(--licorice);
+
+}
+
+.highlight{
+    line-height: 0.8em;
+
+    font-weight: 600;
+    font-size: 1.4em;
 }

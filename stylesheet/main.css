@@ -156,9 +156,52 @@ h5 {
     --bs-btn-hover-color: var(--cornsilk);
     --bs-btn-hover-bg: var(--tigers-eye);
     --bs-btn-hover-border-color: var(--cornsilk);  
+    --bs-btn-active-color: var(--bs-btn-hover-color);
+    --bs-btn-active-bg: var(--tigers-eye);
+    --bs-btn-active-border-color: var(--cornsilk);
     float: right;
     margin-top: 20px;
 }
+
+.skills h1 {
+    display: inline-block;
+    position: relative;
+}
+
+.skills h1::after {
+    content: "";
+    display: block;
+    position: absolute;
+    bottom: -7%;
+    left: 50%;
+    width: 150%; /* Adjust 40px to be 20px longer on each side */
+    height: 3px;
+    background-color: var(--cornsilk); /* Adjust the color as needed */
+    transform: translateX(-50%);
+}
+
+.experiences h1 {
+    display: inline-block;
+    position: relative;
+}
+
+.experiences h1::after {
+    content: "";
+    display: block;
+    position: absolute;
+    bottom: -7%;
+    left: 50%;
+    width: 150%; /* Adjust 40px to be 20px longer on each side */
+    height: 3px;
+    background-color: var(--cornsilk); /* Adjust the color as needed */
+    transform: translateX(-50%);
+}
+
+.footer_icon svg{
+    color: var(--cornsilk);
+}
+
+
 
 @media (max-width: 1400px) and (min-width:1201px) {
     .image {
