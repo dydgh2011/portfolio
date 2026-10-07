@@ -1,19 +1,7 @@
 ---
-// Root of the site: send visitors to the default language.
+// The root shows the default language directly (canonical URL stays /<lang>/).
+import ResumePage from '../components/ResumePage.astro';
 import { defaultLanguage } from '../lib/content';
-
-const target = `${import.meta.env.BASE_URL.replace(/\/$/, '')}/${defaultLanguage}/`;
 ---
 
-<!doctype html>
-<html lang={defaultLanguage}>
-  <head>
-    <meta charset="utf-8" />
-    <meta http-equiv="refresh" content={`0; url=${target}`} />
-    <link rel="canonical" href={target} />
-    <title>Redirecting…</title>
-  </head>
-  <body>
-    <a href={target}>{target}</a>
-  </body>
-</html>
+<ResumePage lang={defaultLanguage} />
