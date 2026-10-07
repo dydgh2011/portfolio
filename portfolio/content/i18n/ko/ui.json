@@ -1,0 +1,39 @@
+{
+  "nav": {
+    "about": "소개",
+    "experience": "경력",
+    "projects": "프로젝트",
+    "education": "학력",
+    "skills": "기술",
+    "play": "게임으로 보기",
+    "resume": "이력서 다운로드",
+    "language": "언어"
+  },
+  "categories": {
+    "languages": "프로그래밍 언어",
+    "spoken": "사용 언어",
+    "backend": "백엔드",
+    "frontend": "프론트엔드",
+    "databases": "데이터베이스",
+    "infrastructure": "인프라",
+    "ai": "AI 엔지니어링"
+  },
+  "elements": {
+    "neutral": "무속성",
+    "water": "수",
+    "fire": "화",
+    "wind": "풍",
+    "earth": "지",
+    "lightning": "뇌"
+  },
+  "labels": {
+    "present": "현재",
+    "expected": "졸업 예정",
+    "inProgress": "진행 중",
+    "codeOnRequest": "코드/문서는 요청 시 공유",
+    "usedIn": "사용한 곳",
+    "skipGame": "이력서 바로 보기",
+    "comingSoon": "게임 버전은 준비 중입니다.",
+    "fullResume": "자세한 내용은 PDF 이력서에서"
+  }
+}

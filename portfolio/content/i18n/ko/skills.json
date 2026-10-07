@@ -1,0 +1,17 @@
+{
+  "english": { "name": "영어" },
+  "korean": { "name": "한국어" },
+  "explain-profiling": { "name": "EXPLAIN 실행 계획 분석" },
+  "indexing": { "name": "인덱스 설계" },
+  "window-functions": { "name": "윈도우 함수" },
+  "json-columns": { "name": "JSON 컬럼" },
+  "rollups": { "name": "롤업 집계" },
+  "multi-agent-orchestration": { "name": "멀티 에이전트 오케스트레이션" },
+  "sub-agent-delegation": { "name": "서브 에이전트 위임" },
+  "context-engineering": { "name": "컨텍스트 엔지니어링" },
+  "agent-rule-adherence": { "name": "에이전트 규칙 준수" },
+  "prompt-design": { "name": "프롬프트 설계" },
+  "ai-assisted-development": { "name": "AI 활용 개발" },
+  "nodejs": { "flavor": "지금까지 만든 거의 모든 것의 밑바탕." },
+  "mysql": { "flavor": "EXPLAIN 먼저, 인덱스 다음, 쿼리 재작성은 마지막." }
+}

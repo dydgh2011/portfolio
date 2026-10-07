@@ -1,0 +1,4 @@
+{
+  "nodejs": { "flavor": "The runtime under almost everything I've shipped." },
+  "mysql":  { "flavor": "EXPLAIN first, index second, rewrite third." }
+}

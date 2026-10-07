@@ -1,0 +1,10 @@
+[
+  {
+    "id": "uoft",
+    "school": "University of Toronto",
+    "location": "Toronto, ON",
+    "end": "2029",
+    "expected": true,
+    "game": { "monster": "exam_beholder", "difficulty": 2 }
+  }
+]

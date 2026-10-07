@@ -1,0 +1,28 @@
+{
+  "kelly": {
+    "name": "Kelly",
+    "summary": "Local-first focus accountability app for macOS.",
+    "highlights": {
+      "on-device": { "metric": "On-device",   "text": "Logs app and input activity; data stays on your machine" },
+      "ai-judge":  { "metric": "AI judge",    "text": "A local model or your own API key scores you against your goals" },
+      "penalties": { "metric": "Real stakes", "text": "Missed goals trigger penalties, like automatic stock purchases" }
+    }
+  },
+  "nerdiest-dungeon": {
+    "name": "The Nerdiest Dungeon",
+    "summary": "Pixel-art roguelike RPG that turns studying into combat.",
+    "highlights": {
+      "study-combat":      { "metric": "Study = combat",    "text": "Monsters are question sets; correct answers cast skills" },
+      "spaced-repetition": { "metric": "Spaced repetition", "text": "Items expire unless you solve related review questions" }
+    }
+  },
+  "what-to-cook": {
+    "name": "What To Cook",
+    "summary": "Recipe platform that suggests dishes from what you have.",
+    "highlights": {
+      "recipes": { "metric": "OpenAI + Search", "text": "Dish ideas and sourced recipes from on-hand ingredients" },
+      "ops":     { "metric": "CI/CD to EC2",    "text": "Ran live with GitHub Actions, Jest e2e tests, and Sentry alerts" },
+      "auth":    { "metric": "5 sign-ins",      "text": "Google, Facebook, Twitter, local, and JWT authentication" }
+    }
+  }
+}

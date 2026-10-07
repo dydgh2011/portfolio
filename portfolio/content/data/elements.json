@@ -1,0 +1,8 @@
+{
+  "neutral":   { "role": "weapon", "categories": ["languages"],      "color": "#c8c8c8" },
+  "water":     { "role": "skill",  "categories": ["backend"],        "color": "#2e86de" },
+  "fire":      { "role": "skill",  "categories": ["databases"],      "color": "#e4572e" },
+  "wind":      { "role": "skill",  "categories": ["frontend"],       "color": "#4cd087" },
+  "earth":     { "role": "skill",  "categories": ["infrastructure"], "color": "#a8743a" },
+  "lightning": { "role": "skill",  "categories": ["ai"],             "color": "#f5d547" }
+}

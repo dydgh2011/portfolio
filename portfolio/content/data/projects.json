@@ -1,0 +1,86 @@
+[
+  {
+    "id": "kelly",
+    "start": "2026-09",
+    "end": null,
+    "status": "in-progress",
+    "skills": [
+      "typescript",
+      "electron",
+      "nodejs",
+      "sqlite",
+      "ollama",
+      "openai-api"
+    ],
+    "links": [],
+    "codeOnRequest": true,
+    "game": {
+      "monster": "focus_wraith",
+      "difficulty": 2
+    },
+    "highlights": [
+      "on-device",
+      "ai-judge",
+      "penalties"
+    ]
+  },
+  {
+    "id": "nerdiest-dungeon",
+    "start": "2026-08",
+    "end": null,
+    "status": "in-progress",
+    "skills": [
+      "godot",
+      "typescript",
+      "nodejs",
+      "postgresql",
+      "aws"
+    ],
+    "links": [],
+    "codeOnRequest": true,
+    "game": {
+      "monster": "quiz_lich",
+      "difficulty": 3
+    },
+    "highlights": [
+      "study-combat",
+      "spaced-repetition"
+    ]
+  },
+  {
+    "id": "what-to-cook",
+    "start": "2024-03",
+    "end": "2024-05",
+    "status": "done",
+    "skills": [
+      "typescript",
+      "nestjs",
+      "postgresql",
+      "typeorm",
+      "openai-api",
+      "aws",
+      "ec2",
+      "github-actions",
+      "swagger",
+      "jest",
+      "sentry",
+      "passport"
+    ],
+    "links": [
+      {
+        "type": "github",
+        "url": "https://github.com/dydgh2011/what-to-cook"
+      }
+    ],
+    "codeOnRequest": false,
+    "game": {
+      "monster": "fridge_slime",
+      "difficulty": 1
+    },
+    "highlights": [
+      "recipes",
+      "ops",
+      "auth"
+    ]
+  }
+]

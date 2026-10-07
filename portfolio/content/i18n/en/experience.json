@@ -1,0 +1,28 @@
+{
+  "gamespring-admin-ai": {
+    "title": "Backend Developer, Admin Platforms & AI",
+    "location": "South Korea",
+    "summary": "Ran the company's admin platform solo and built its AI dev workflow.",
+    "highlights": {
+      "solo-platform":  { "metric": "90% of staff",     "text": "Sole developer of a 300K-line admin platform they used daily" },
+      "ai-pipeline":    { "metric": "5 features / week", "text": "Shipped solo with an AI agent pipeline, vs. 3 for a 3-person team" },
+      "branch-console": { "metric": "8 h / week",       "text": "Saved for client engineers by a self-serve dev server console" },
+      "player-search":  { "metric": "60 s → <1 s",      "text": "Player search for customer service, after interviewing the team" },
+
+      "cost-saving":    { "metric": "CA$12K / year",    "text": "Saved by replacing OneSignal with an in-house push service" },
+      "shipping":       { "metric": "200+ fixes",       "text": "Plus 40 new features and 50 upgrades across 150 features" },
+      "stamp-reset":    { "metric": "2 min → <2 s",     "text": "Table-locking reset job that froze live players" },
+      "kpi-rollups":    { "metric": "2 days → 3 h",     "text": "To support a new game, after redesigning KPIs as JSON rollups" },
+      "aws-transform":  { "metric": "10x cost",         "text": "Found in an AWS Transform pilot; advised the CEO against it" }
+    }
+  },
+  "gamespring-game-server": {
+    "title": "Backend Developer, Game Server",
+    "location": "South Korea",
+    "summary": "Server team for a live multi-region social casino game.",
+    "highlights": {
+      "christmas-jackpot": { "metric": "1 day, not 3", "text": "Shipped a seasonal jackpot mode by reusing the payout engine" },
+      "heap-monitor":      { "metric": "0 recurrences", "text": "After tracing a 3 GB/hour memory leak with a custom heap monitor" }
+    }
+  }
+}

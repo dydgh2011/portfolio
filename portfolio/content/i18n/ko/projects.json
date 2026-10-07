@@ -1,0 +1,25 @@
+{
+  "kelly": {
+    "summary": "macOS용 로컬 우선(local-first) 집중 관리 앱.",
+    "highlights": {
+      "on-device": { "metric": "기기 내 저장", "text": "앱 사용과 입력 활동을 기록하고, 데이터는 내 기기에만 보관" },
+      "ai-judge":  { "metric": "AI 심판",     "text": "로컬 모델 또는 본인 API 키로 목표 달성을 평가" },
+      "penalties": { "metric": "진짜 벌칙",   "text": "목표를 놓치면 주식 자동 매수 같은 벌칙 실행" }
+    }
+  },
+  "nerdiest-dungeon": {
+    "summary": "공부를 전투로 바꾸는 픽셀아트 로그라이크 RPG.",
+    "highlights": {
+      "study-combat":      { "metric": "공부 = 전투",  "text": "몬스터는 문제 세트, 정답을 맞히면 스킬 발동" },
+      "spaced-repetition": { "metric": "간격 반복",    "text": "복습 문제를 풀지 않으면 아이템이 사라짐" }
+    }
+  },
+  "what-to-cook": {
+    "summary": "가진 재료로 만들 수 있는 요리를 추천하는 레시피 플랫폼.",
+    "highlights": {
+      "recipes": { "metric": "OpenAI + 검색",  "text": "가진 재료로 요리 추천과 출처 있는 레시피 제공" },
+      "ops":     { "metric": "EC2 CI/CD",      "text": "GitHub Actions, Jest E2E 테스트, Sentry 알림으로 실서비스 운영" },
+      "auth":    { "metric": "로그인 5종",     "text": "Google, Facebook, Twitter, 로컬, JWT 인증 지원" }
+    }
+  }
+}

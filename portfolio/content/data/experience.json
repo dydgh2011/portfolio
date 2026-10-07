@@ -1,0 +1,69 @@
+[
+  {
+    "id": "gamespring-admin-ai",
+    "org": "Gamespring",
+    "start": "2025-03",
+    "end": "2026-08",
+    "skills": [
+      "typescript",
+      "nodejs",
+      "express",
+      "react",
+      "antdesign",
+      "mysql",
+      "redis",
+      "explain-profiling",
+      "indexing",
+      "window-functions",
+      "json-columns",
+      "rollups",
+      "aws",
+      "ec2",
+      "pm2",
+      "linux",
+      "multi-agent-orchestration",
+      "sub-agent-delegation",
+      "context-engineering",
+      "agent-rule-adherence",
+      "ai-assisted-development",
+      "bedrock",
+      "claude",
+      "openai-api",
+      "aws-transform"
+    ],
+    "highlights": [
+      "solo-platform",
+      "ai-pipeline",
+      "branch-console",
+      "player-search"
+    ],
+    "game": {
+      "monster": "admin_golem",
+      "difficulty": 4
+    }
+  },
+  {
+    "id": "gamespring-game-server",
+    "org": "Gamespring",
+    "start": "2024-07",
+    "end": "2025-03",
+    "skills": [
+      "typescript",
+      "nodejs",
+      "express",
+      "socketio",
+      "mysql",
+      "aurora",
+      "aws",
+      "ec2"
+    ],
+    "highlights": [
+      "christmas-jackpot",
+      "heap-monitor"
+    ],
+    "game": {
+      "monster": "slot_mimic",
+      "difficulty": 2
+    }
+  }
+]

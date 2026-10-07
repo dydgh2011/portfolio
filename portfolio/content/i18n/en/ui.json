@@ -1,0 +1,39 @@
+{
+  "nav": {
+    "about": "About",
+    "experience": "Experience",
+    "projects": "Projects",
+    "education": "Education",
+    "skills": "Skills",
+    "play": "Play the game",
+    "resume": "Download resume",
+    "language": "Language"
+  },
+  "categories": {
+    "languages": "Languages",
+    "spoken": "Spoken",
+    "backend": "Backend",
+    "frontend": "Frontend",
+    "databases": "Databases",
+    "infrastructure": "Infrastructure",
+    "ai": "AI Engineering"
+  },
+  "elements": {
+    "neutral": "Neutral",
+    "water": "Water",
+    "fire": "Fire",
+    "wind": "Wind",
+    "earth": "Earth",
+    "lightning": "Lightning"
+  },
+  "labels": {
+    "present": "Present",
+    "expected": "Expected",
+    "inProgress": "In progress",
+    "codeOnRequest": "Code/docs on request",
+    "usedIn": "Used in",
+    "skipGame": "Skip to resume",
+    "comingSoon": "The game version is coming soon.",
+    "fullResume": "Full details in the PDF resume"
+  }
+}

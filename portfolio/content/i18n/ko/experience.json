@@ -1,0 +1,28 @@
+{
+  "gamespring-admin-ai": {
+    "title": "백엔드 개발자, 어드민 플랫폼 & AI",
+    "location": "대한민국",
+    "summary": "사내 어드민 플랫폼을 혼자 운영하고, 이를 위한 AI 개발 워크플로를 구축.",
+    "highlights": {
+      "solo-platform":  { "metric": "직원 90%",        "text": "가 매일 쓰는 30만 줄 규모 어드민 플랫폼을 단독 개발·운영" },
+      "ai-pipeline":    { "metric": "주 5개 기능",      "text": "AI 에이전트 파이프라인으로 혼자 배포 (이전 3인 팀은 주 3개)" },
+      "branch-console": { "metric": "주 8시간",         "text": "셀프 서비스 개발 서버 콘솔로 절약한 클라이언트 엔지니어 시간" },
+      "player-search":  { "metric": "60초 → 1초 미만",  "text": "고객지원팀 인터뷰 후 개선한 플레이어 검색 속도" },
+
+      "cost-saving":    { "metric": "연 CA$12K",        "text": "OneSignal을 자체 푸시 서비스로 대체해 절감" },
+      "shipping":       { "metric": "버그 수정 200+",   "text": "신규 기능 40개, 개선 50건과 함께 배포" },
+      "stamp-reset":    { "metric": "2분 → 2초 미만",   "text": "라이브 플레이어를 멈추게 하던 테이블 잠금 초기화 작업" },
+      "kpi-rollups":    { "metric": "2일 → 3시간",      "text": "KPI를 JSON 롤업으로 재설계한 뒤 새 게임 지원에 걸리는 시간" },
+      "aws-transform":  { "metric": "비용 10배",        "text": "AWS Transform 시범 도입에서 확인, CEO에게 도입 반대 제안" }
+    }
+  },
+  "gamespring-game-server": {
+    "title": "백엔드 개발자, 게임 서버",
+    "location": "대한민국",
+    "summary": "여러 국가에서 서비스되는 라이브 소셜 카지노 게임의 서버 팀.",
+    "highlights": {
+      "christmas-jackpot": { "metric": "3일 → 1일",  "text": "배당 엔진을 재사용해 시즌 잭팟 모드를 배포" },
+      "heap-monitor":      { "metric": "재발 0회",   "text": "직접 만든 힙 모니터로 시간당 3GB 메모리 누수 원인을 추적한 뒤" }
+    }
+  }
+}

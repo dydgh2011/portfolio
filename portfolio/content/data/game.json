@@ -1,0 +1,12 @@
+{
+  "route": ["intro", "skills", "education", "experience", "projects"],
+  "classes": [
+    { "id": "warrior", "enabled": true },
+    { "id": "tank",    "enabled": false },
+    { "id": "mage",    "enabled": false },
+    { "id": "healer",  "enabled": false }
+  ],
+  "effectTypes": ["melee", "projectile", "aoe", "dash", "buff", "chain", "summon"],
+  "weaknessBonus": 1.5,
+  "viewport": { "width": 640, "height": 360, "tileSize": 16 }
+}
