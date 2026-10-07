@@ -12,7 +12,7 @@ content/ (JSON + icons)  ── one source of truth
 ```
 
 Inspired by Dungreed, Sephiria, and Skul.
-
+ 
 ---
 
 ## Roadmap
