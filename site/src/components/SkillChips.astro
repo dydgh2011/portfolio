@@ -1,0 +1,22 @@
+---
+import type { SkillRef } from '../lib/content';
+import SkillChip from './SkillChip.astro';
+
+interface Props {
+  skills: SkillRef[];
+}
+
+const { skills } = Astro.props;
+---
+
+{
+  skills.length > 0 && (
+    <ul class="chips">
+      {skills.map((s) => (
+        <li>
+          <SkillChip skill={s} />
+        </li>
+      ))}
+    </ul>
+  )
+}

@@ -1,0 +1,22 @@
+---
+import type { Highlight } from '../lib/content';
+
+interface Props {
+  items: Highlight[];
+}
+
+const { items } = Astro.props;
+---
+
+{
+  items.length > 0 && (
+    <ul class="highlights">
+      {items.map((h) => (
+        <li class="card">
+          <span class="metric">{h.metric}</span>
+          <span class="text">{h.text}</span>
+        </li>
+      ))}
+    </ul>
+  )
+}

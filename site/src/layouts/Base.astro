@@ -1,0 +1,39 @@
+---
+import '../styles/global.css';
+import pixelFont from 'galmuri/dist/Galmuri11-Bold.woff2?url';
+import favicon from '../../../assets/kenney/tiny-dungeon/tile_0097.png?url';
+import { languages, defaultLanguage } from '../lib/content';
+
+interface Props {
+  lang: string;
+  title: string;
+  description: string;
+}
+
+const { lang, title, description } = Astro.props;
+const base = import.meta.env.BASE_URL.replace(/\/$/, '');
+const site = Astro.site ? new URL(base + '/', Astro.site).href : undefined;
+---
+
+<!doctype html>
+<html lang={lang}>
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>{title}</title>
+    <meta name="description" content={description} />
+    <meta property="og:title" content={title} />
+    <meta property="og:description" content={description} />
+    <meta property="og:type" content="profile" />
+    <meta name="theme-color" content="#1d1a2f" />
+    <link rel="icon" type="image/png" href={favicon} />
+    {site && <link rel="canonical" href={`${site}${lang}/`} />}
+    {site && languages.map((l) => <link rel="alternate" hreflang={l} href={`${site}${l}/`} />)}
+    {site && <link rel="alternate" hreflang="x-default" href={`${site}${defaultLanguage}/`} />}
+    <link rel="preload" href={pixelFont} as="font" type="font/woff2" crossorigin />
+    <style set:html={`@font-face{font-family:'Galmuri11';font-weight:700;font-display:swap;src:url('${pixelFont}') format('woff2')}`}></style>
+  </head>
+  <body>
+    <slot />
+  </body>
+</html>

@@ -20,8 +20,8 @@ Inspired by Dungreed, Sephiria, and Skul.
 ### Phase 1 — Resume site
 - [ ] Astro project in `site/`, reads everything from `content/`
 - [ ] Routes: `/en/` and `/ko/` (default `en`), language switcher
-- [ ] Sections: About, Experience, Projects, Education, Skills
-- [ ] Experience filter: All / Backend / AI (uses `tracks` on each bullet)
+- [ ] Sections: About, Projects, Experience, Skills, Education (projects first)
+- [ ] Highlights shown as metric cards: big number + one short line
 - [ ] Skills page shows "Used in" for each skill (computed from experience and projects)
 - [ ] Resume PDF download (backend and AI versions)
 - [ ] Pixel-art look using the game's UI assets (see [Site design](#site-design))
@@ -87,9 +87,16 @@ portfolio/
 - kebab-case, unique inside each file (`gamespring-admin-ai`, `window-functions`).
 - Never rename an id once it is live: save files and translations depend on it.
 
-### Text formatting
-- `**bold**` is the only markup allowed in text. The site renders it as `<strong>`, the game as BBCode `[b]`.
-- Bold only numbers and results, same as the PDF resume.
+### Writing style: short, not the resume
+
+The PDF resume is long and detailed on purpose. This site is **not** a copy of it.
+
+- Every entry has one `summary` line (max ~70 characters).
+- Experience: max **4 highlights** per role. Projects: max **2–3**.
+- A highlight = `metric` (a short number, shown big) + `text` (one line, max ~80 characters).
+- No full sentences of process ("Interviewed..., then moved..., and built..."). Say the result.
+- Anything longer goes in the PDF resume. The site links to it ("Full details in the PDF resume").
+- Plain text only. No markdown in content strings.
 
 ### `skills.json`
 
@@ -131,7 +138,7 @@ Programming languages are **weapons** (basic attack style). Frameworks and tools
 ### Experience / projects / education
 - Each entry has `skills` (list of skill ids) and an optional `game.monster` + `game.difficulty`.
 - **Boss weakness = the entry's `skills`.** Hitting a boss with an item from that list deals `weaknessBonus` × damage. The game rules show where each skill was really used.
-- Each experience bullet has `tracks` (`backend`, `ai`), matching the two PDF resume versions.
+- `highlights` is a list of ids. Text for each id lives in `i18n/<lang>/...json` as `{ "metric": "...", "text": "..." }`. The metric is in i18n because units change by language ("8 h / week" vs "주 8시간").
 
 ### `game.json`
 - `route`: order of sections in a run. Change the order here, not in code.
@@ -150,9 +157,9 @@ Programming languages are **weapons** (basic attack style). Frameworks and tools
 2. Add `icon` and `game` to the skill. Reuse an existing `effect.type`.
 3. No code change needed. A new `effect.type` needs one new script in `game/effects/` and an entry in `effectTypes`.
 
-**Add an experience bullet**
-1. Add `{ "id": "...", "tracks": [...] }` to the entry in `data/experience.json`.
-2. Add the text under the same id in every `i18n/<lang>/experience.json`.
+**Add or swap a highlight**
+1. Add the id to `highlights` in `data/experience.json` (or `projects.json`). Keep the max count.
+2. Add `{ "metric": "...", "text": "..." }` under the same id in every `i18n/<lang>/` file.
 
 Push to `main` → CI validates → site rebuilds. The game reads content at runtime, so **content changes never need a Godot re-export**.
 
@@ -164,9 +171,11 @@ Errors (fail the build):
 - invalid JSON, duplicate ids
 - a `skills` list or `parent` points to a skill id that does not exist
 - `game.element` not in `elements.json`, `effect.type` not in `effectTypes`
-- a data entry or bullet has no English text
+- a data entry or highlight has no English text
+- more highlights than the limit (4 per role, 3 per project)
 
 Warnings:
+- a `summary` or highlight `text` is longer than the style limit
 - a non-English language is missing a key (falls back to English)
 - a skill has `game` but its icon file is missing (game uses the element's default icon)
 - an icon file exists but no skill uses it

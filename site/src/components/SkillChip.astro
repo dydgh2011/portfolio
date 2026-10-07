@@ -1,0 +1,16 @@
+---
+import type { SkillRef } from '../lib/content';
+
+interface Props {
+  skill: SkillRef;
+  class?: string;
+  title?: string;
+}
+
+const { skill, class: className, title } = Astro.props;
+---
+
+<span class:list={['chip', className]} style={`--element: ${skill.color}`} title={title}>
+  {skill.icon ? <img src={skill.icon} alt="" width="16" height="16" /> : <span class="swatch" aria-hidden="true" />}
+  {skill.name}
+</span>

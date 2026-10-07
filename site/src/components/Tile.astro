@@ -1,0 +1,14 @@
+---
+import { tileStyle, TILE, type TileRef } from '../lib/sprites';
+
+interface Props {
+  tile: TileRef;
+  scale?: number;
+  class?: string;
+}
+
+const { tile, scale = 2, class: className } = Astro.props;
+const size = TILE * scale;
+---
+
+<span class:list={['tile', className]} style={`${tileStyle(tile, scale)};width:${size}px;height:${size}px`} aria-hidden="true"></span>

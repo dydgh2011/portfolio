@@ -1,0 +1,11 @@
+---
+import { flagUrl } from '../lib/sprites';
+
+interface Props {
+  country?: string;
+}
+
+const src = flagUrl(Astro.props.country);
+---
+
+{src && <img class="flag" src={src} alt="" width="16" height="16" />}
