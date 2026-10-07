@@ -40,7 +40,8 @@
     "game": {
       "monster": "admin_golem",
       "difficulty": 4
-    }
+    },
+    "country": "KR"
   },
   {
     "id": "gamespring-game-server",
@@ -64,6 +65,7 @@
     "game": {
       "monster": "slot_mimic",
       "difficulty": 2
-    }
+    },
+    "country": "KR"
   }
 ]

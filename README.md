@@ -18,15 +18,15 @@ Inspired by Dungreed, Sephiria, and Skul.
 ## Roadmap
 
 ### Phase 1 — Resume site
-- [ ] Astro project in `site/`, reads everything from `content/`
-- [ ] Routes: `/en/` and `/ko/` (default `en`), language switcher
-- [ ] Sections: About, Projects, Experience, Skills, Education (projects first)
-- [ ] Highlights shown as metric cards: big number + one short line
-- [ ] Skills page shows "Used in" for each skill (computed from experience and projects)
-- [ ] Resume PDF download (backend and AI versions)
-- [ ] Pixel-art look using the game's UI assets (see [Site design](#site-design))
-- [ ] `scripts/validate.ts` content checks
-- [ ] GitHub Actions: validate → build → deploy to Pages
+- [x] Astro project in `site/`, reads everything from `content/`
+- [x] Routes: `/en/` and `/ko/` (default `en`), language switcher
+- [x] Sections: About, Projects, Experience, Skills, Education (projects first)
+- [x] Highlights shown as metric cards: big number + one short line
+- [x] Skills section: chips per category; "Used in" (computed from experience and projects) shown as a chip tooltip
+- [x] Resume PDF download (backend and AI versions, public copies without phone number)
+- [x] Pixel-art look using the game's UI assets (see [Site design](#site-design))
+- [x] `scripts/validate.ts` content checks
+- [x] GitHub Actions: validate → build → deploy to Pages
 
 ### Phase 2 — Game foundation
 - [ ] Godot project in `game/`, single-threaded web export to `/play/`
@@ -66,7 +66,9 @@ portfolio/
 │   ├── i18n/            # text only, one folder per language
 │   │   ├── en/  profile.json  experience.json  projects.json  education.json  skills.json  ui.json
 │   │   └── ko/  ...
-│   └── icons/           # skill icons, file name = "icon" field in skills.json
+│   ├── icons/           # skill icons, file name = "icon" field in skills.json
+│   └── resume/          # PDF resumes, paths set in profile.json → resumePdf
+├── assets/kenney/       # CC0 art packs shared by site and game (see CREDITS.md)
 ├── site/                # Astro site (Phase 1)
 ├── game/                # Godot project (Phase 2+)
 ├── scripts/validate.ts  # content checks, run in CI
@@ -188,7 +190,10 @@ Pixel style, built from the same free asset pack the game uses.
 
 - **Readability first.** Pixel font only for headings, nav, and labels. Body text uses a normal readable font. For Korean, use a pixel font with Hangul support (e.g. Galmuri, OFL license).
 - `image-rendering: pixelated` on all sprites. Scale sprites only by whole numbers (×2, ×3, ×4).
-- Panels and buttons: 9-slice UI tiles with CSS `border-image`.
+- Panels and buttons: 9-slice UI tiles with CSS `border-image`. Kenney Fantasy UI Borders sprites are white; `site/scripts/build-ui.mjs` tints them to the site palette before `dev`/`build` (change sprite or color there).
+- Header scene: a top-down map (farm → town → dungeon gate) laid out in `site/scripts/scene.mjs` and composed into one PNG by `build-ui.mjs`; the knight walks the road (static with reduced motion). Section icons are tiles from `tilemap_packed.png`, set in `site/src/lib/sprites.ts`.
+- Flags (Flag Pack) mark languages (`profile.json → languageFlags`) and places (`country` on experience/education).
+- Resume PDFs in `content/resume/` are the public copies: **no phone number**. Rebuild them from the private `.tex` with the phone line removed.
 - Each skill chip uses its element color from `elements.json`.
 - All resume text is real HTML text (selectable, searchable, screen-reader friendly). Never put text inside images or canvas.
 - Respect `prefers-reduced-motion`. Keep color contrast at WCAG AA.

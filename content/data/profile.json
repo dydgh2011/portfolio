@@ -12,5 +12,6 @@
     "ai": "resume/Yongho_Nam_Resume_AI.pdf"
   },
   "languages": ["en", "ko"],
+  "languageFlags": { "en": "CA", "ko": "KR" },
   "defaultLanguage": "en"
 }
