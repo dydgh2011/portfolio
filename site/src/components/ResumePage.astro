@@ -243,7 +243,8 @@ const horizonStyle = `--horizon-w:calc(${horizon.cols} * var(--map-tile));--hori
     const zones = document.querySelectorAll<HTMLElement>('[data-zone]');
     const rowPx = () => 32 * (parseFloat(getComputedStyle(document.documentElement).getPropertyValue('--map-s')) || 1);
     const fit = (zone: HTMLElement, px = rowPx()) => {
-      const rows = Math.max(Number(zone.dataset.rows), Math.ceil((zone.firstElementChild as HTMLElement).offsetHeight / px - 0.001));
+      // getBoundingClientRect: the content may be zoomed (--ui-s), and this is its size on screen
+      const rows = Math.max(Number(zone.dataset.rows), Math.ceil((zone.firstElementChild as HTMLElement).getBoundingClientRect().height / px - 0.001));
       zone.style.height = `${rows * px}px`;
     };
     const observer = new ResizeObserver((entries) => {

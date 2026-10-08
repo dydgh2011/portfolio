@@ -34,11 +34,19 @@ const site = Astro.site ? new URL(base + '/', Astro.site).href : undefined;
     <script is:inline>
       // Map scale: the page map (and the horizon) is drawn 1:1 from MAP_VIEW px wide up, and
       // shrinks with the window below that, so narrow screens see the same scene as a laptop.
-      // CSS reads it as --map-s (1 without JS); content and text keep their size.
+      // Content scale: the content (text, cards, margins) shrinks less, from 1 at MAP_VIEW
+      // down to UI_MIN at PHONE px and narrower. CSS reads them as --map-s and --ui-s (1 without JS).
       (() => {
         const MAP_VIEW = 1280;
+        const PHONE = 390;
+        const UI_MIN = 0.8;
         const root = document.documentElement;
-        const set = () => root.style.setProperty('--map-s', String(Math.min(1, root.clientWidth / MAP_VIEW)));
+        const set = () => {
+          const w = root.clientWidth;
+          const k = Math.min(1, Math.max(0, (w - PHONE) / (MAP_VIEW - PHONE)));
+          root.style.setProperty('--map-s', String(Math.min(1, w / MAP_VIEW)));
+          root.style.setProperty('--ui-s', String(UI_MIN + (1 - UI_MIN) * k));
+        };
         set();
         addEventListener('resize', set);
         addEventListener('DOMContentLoaded', set); // after the scrollbar shows up

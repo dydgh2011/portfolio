@@ -210,9 +210,17 @@ h3,
   .zone-title.over-band {
     position: static;
   }
+  .site-nav ul {
+    gap: 4px 14px;
+    scrollbar-width: none; /* still scrolls sideways on phones, without the bar under the links */
+  }
   .zone-title.over-band .section-title {
     margin: 0 0 16px;
   }
+}
+.zone-content,
+.site-header > .wrap {
+  zoom: var(--ui-s); /* narrow screens: smaller text, cards and margins (see Base.astro) */
 }
 .zone-content {
   position: relative;
@@ -332,6 +340,7 @@ h3,
 :root {
   --map-s: 1; /* set by Base.astro: below 1280 px wide the map shrinks with the window */
   --map-tile: calc(32px * var(--map-s)); /* one map tile on the page */
+  --ui-s: 1; /* set by Base.astro: content scale, down to 0.8 on phones */
   --edge-shade: linear-gradient(
     to right,
     rgba(10, 8, 24, 0.7) 0 calc(50% - 27 * var(--map-tile)),
@@ -736,12 +745,45 @@ h3,
   gap: 8px;
 }
 
+/* Phones: boxes are much narrower than on a laptop, so headings get smaller too (on top
+   of the --ui-s zoom) and the metric cards fit three to a row instead of breaking 2 + 1. */
 @media (max-width: 560px) {
   .name {
     font-size: 24px;
   }
   .panel {
     padding: 0;
+  }
+  .section-title {
+    gap: 8px;
+    font-size: 18px;
+  }
+  .about p {
+    font-size: 15px;
+  }
+  .entry h3 {
+    font-size: 16px;
+  }
+  .entry .meta,
+  .entry .notes {
+    font-size: 13px;
+  }
+  .entry .summary {
+    font-size: 15px;
+  }
+  .highlights {
+    grid-template-columns: repeat(auto-fill, minmax(118px, 1fr));
+    gap: 8px;
+  }
+  .highlights .metric {
+    font-size: 15px;
+  }
+  .highlights .text {
+    font-size: 12px;
+  }
+  .actions {
+    gap: 6px;
+    margin-top: 16px;
   }
 }
 
