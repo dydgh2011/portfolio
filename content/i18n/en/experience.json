@@ -6,10 +6,10 @@
     "highlights": {
       "solo-platform":  { "metric": "90% of staff",     "text": "Sole developer of a 300K-line admin platform they used daily" },
       "ai-pipeline":    { "metric": "5 features / week", "text": "Shipped solo with an AI agent pipeline, vs. 3 for a 3-person team" },
-      "branch-console": { "metric": "8 h / week",       "text": "Saved for client engineers by a self-serve dev server console" },
-      "player-search":  { "metric": "60 s → <1 s",      "text": "Player search for customer service, after interviewing the team" },
+      "branch-console": { "metric": "8 h / week",       "text": "Saved for client engineers by a self-serve dev server console I built" },
+      "player-search":  { "metric": "60 s → <1 s",      "text": "Customer service player search, rebuilt around how the team searches" },
 
-      "cost-saving":    { "metric": "CA$12K / year",    "text": "Saved by replacing OneSignal with an in-house push service" },
+      "cost-saving":    { "metric": "$12K / year",    "text": "Subscription cut by building an in-house push service to replace OneSignal" },
       "shipping":       { "metric": "200+ fixes",       "text": "Plus 40 new features and 50 upgrades across 150 features" },
       "stamp-reset":    { "metric": "2 min → <2 s",     "text": "Table-locking reset job that froze live players" },
       "kpi-rollups":    { "metric": "2 days → 3 h",     "text": "To support a new game, after redesigning KPIs as JSON rollups" },
@@ -19,10 +19,10 @@
   "gamespring-game-server": {
     "title": "Backend Developer, Game Server",
     "location": "South Korea",
-    "summary": "Server team for a live multi-region social casino game.",
+    "summary": "Features and prod fixes for a live, multi-region social casino game.",
     "highlights": {
       "christmas-jackpot": { "metric": "1 day, not 3", "text": "Shipped a seasonal jackpot mode by reusing the payout engine" },
-      "heap-monitor":      { "metric": "0 recurrences", "text": "After tracing a 3 GB/hour memory leak with a custom heap monitor" }
+      "heap-monitor":      { "metric": "3 GB/h leak",  "text": "Traced with a custom heap monitor and fixed; never came back" }
     }
   }
 }

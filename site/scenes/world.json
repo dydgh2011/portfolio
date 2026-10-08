@@ -12,14 +12,14 @@
       "repeatTo": 13
     },
     {
-      "id": "projects",
+      "id": "experience",
       "from": 27,
       "to": 34,
       "repeatFrom": 28,
       "repeatTo": 33
     },
     {
-      "id": "experience",
+      "id": "projects",
       "from": 47,
       "to": 56,
       "repeatFrom": 48,
@@ -16571,52 +16571,10 @@
     { "type": "glow", "col": 49, "row": 117, "color": "#ffd76a", "radius": 1.2, "intensity": 0.45, "flicker": "breathe" }
   ],
   "fireflies": [
-    {
-      "col": 20,
-      "row": 1,
-      "w": 40,
-      "h": 9,
-      "count": 3,
-      "seed": 762083,
-      "life": 10,
-      "rest": 2,
-      "size": 0.5,
-      "speed": 1,
-      "color": "#f5ffdb"
-    },
-    {
-      "col": 26,
-      "row": 22,
-      "w": 30,
-      "h": 5,
-      "count": 7,
-      "seed": 202
-    },
-    {
-      "col": 22,
-      "row": 42,
-      "w": 22,
-      "h": 5,
-      "count": 6,
-      "seed": 303
-    },
-    {
-      "col": 22,
-      "row": 57,
-      "w": 34,
-      "h": 3,
-      "count": 4,
-      "seed": 404
-    },
-    {
-      "col": 21,
-      "row": 76,
-      "w": 37,
-      "h": 12,
-      "count": 16,
-      "color": "#b8ff7a",
-      "seed": 505,
-      "size": 0.8
-    }
+    { "col": 20, "row": 1, "w": 40, "h": 9, "count": 3, "seed": 762083, "life": 10, "rest": 2, "size": 0.5, "speed": 1, "color": "#f5ffdb" },
+    { "col": 26, "row": 22, "w": 30, "h": 5, "count": 7, "seed": 202 },
+    { "col": 22, "row": 42, "w": 22, "h": 5, "count": 6, "seed": 303 },
+    { "col": 22, "row": 57, "w": 34, "h": 3, "count": 4, "seed": 404 },
+    { "col": 21, "row": 76, "w": 37, "h": 12, "count": 16, "color": "#b8ff7a", "seed": 505, "size": 0.8 }
   ]
 }

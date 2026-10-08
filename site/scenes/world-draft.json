@@ -12,14 +12,14 @@
       "repeatTo": 13
     },
     {
-      "id": "projects",
+      "id": "experience",
       "from": 27,
       "to": 34,
       "repeatFrom": 28,
       "repeatTo": 33
     },
     {
-      "id": "experience",
+      "id": "projects",
       "from": 47,
       "to": 56,
       "repeatFrom": 48,

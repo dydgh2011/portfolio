@@ -5,7 +5,7 @@ The portfolio comes in two forms built from the same `content/`: the resume site
 ## Phase 1 — Resume site
 - [x] Astro project in `site/`, reads everything from `content/`
 - [x] Routes: `/en/` and `/ko/` (default `en`), language switcher
-- [x] Sections: About, Projects, Experience, Skills, Education (projects first)
+- [x] Sections: About, Experience, Projects, Skills, Education
 - [x] Highlights shown as metric cards: big number + one short line
 - [x] Skills section: chips per category; "Used in" (computed from experience and projects) shown as a chip tooltip
 - [x] Resume PDF download (backend and AI versions, public copies without phone number)

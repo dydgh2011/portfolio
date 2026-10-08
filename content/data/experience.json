@@ -31,10 +31,22 @@
       "openai-api",
       "aws-transform"
     ],
+    "cardSkills": [
+      "typescript",
+      "nodejs",
+      "express",
+      "react",
+      "mysql",
+      "redis",
+      "aws",
+      "multi-agent-orchestration",
+      "claude",
+      "bedrock"
+    ],
     "highlights": [
       "solo-platform",
       "ai-pipeline",
-      "branch-console",
+      "cost-saving",
       "player-search"
     ],
     "game": {

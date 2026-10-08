@@ -22,9 +22,9 @@ The resume site (`site/`, Astro) shows the resume as one long pixel-art RPG map 
 
 ## The map
 
-Everything below the header is one tall map, `site/scenes/world.json` (80 × 120 tiles of 16 px, shown at ×2). `site/scripts/build-ui.mjs` composes it, tints it to dusk, and slices it into bands and zones (see `site/scripts/world.mjs`). The scenes go from a village gate down through farm, training ground, market and a dark forest into a dungeon and a boss room.
+Everything below the header is one tall map, `site/scenes/world.json` (80 × 120 tiles of 16 px, shown at ×2). `site/scripts/build-ui.mjs` composes it, tints it to dusk, and slices it into bands and zones (see `site/scripts/world.mjs`). The scenes go from a village gate down through farm (above Experience), training ground (above Projects), market and a dark forest into a dungeon and a boss room.
 
-- **Zones** are the rows where content sits (`about`, `projects`, `experience`, `skills`, `education`, `footer`). A zone stretches to its content by repeating its **repeat rows**, rounded to whole rows so tiles are never cut. Keep the content column (cols 26–53) calm.
+- **Zones** are the rows where content sits (`about`, `experience`, `projects`, `skills`, `education`, `footer`, in page order: `ZONE_IDS` in `world.mjs`). A zone stretches to its content by repeating its **repeat rows**, rounded to whole rows so tiles are never cut. Keep the content column (cols 26–53) calm.
 - **Bands** are the fixed scenes between zones. The section title sits at the bottom of the band, right above its content.
 - **Actors** (the knight, villagers, animals, monsters) live in bands: `walk`, `wander`, or `path` through points. An actor is drawn in the band where most of its path is, clipped to it.
 - **Lights** (`lights` in `world.json`): torches, braziers, campfires, street lamps, lit windows, and plain glows. Each has a sprite (fires animate; `assets/custom/lights.png`, drawn by `site/scripts/make-light-sprites.mjs`) and a soft glow that only adds light. Fires flicker; magic lights breathe. Types and defaults: `LIGHT_TYPES` in `world.mjs`.

@@ -87,7 +87,7 @@
   { "id": "multi-agent-orchestration", "name": "Multi-agent orchestration", "category": "ai" },
   { "id": "sub-agent-delegation", "name": "Sub-agent delegation", "category": "ai" },
   { "id": "context-engineering", "name": "Context engineering", "category": "ai" },
-  { "id": "agent-rule-adherence", "name": "Agent rule adherence", "category": "ai" },
+  { "id": "agent-rule-adherence", "name": "Agent guardrails", "category": "ai" },
   { "id": "prompt-design", "name": "Prompt design", "category": "ai" },
   { "id": "ai-assisted-development", "name": "AI-assisted development", "category": "ai" },
   { "id": "bedrock", "name": "AWS Bedrock", "category": "ai", "icon": "bedrock.png",

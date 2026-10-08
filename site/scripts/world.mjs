@@ -16,7 +16,7 @@ export const SCALE = 2;
 export const PX = TILE * SCALE; // one tile on the page
 
 // Zones the page knows about, in page order. A zone id must be one of these.
-export const ZONE_IDS = ['about', 'projects', 'experience', 'skills', 'education', 'footer'];
+export const ZONE_IDS = ['about', 'experience', 'projects', 'skills', 'education', 'footer'];
 
 /**
  * Check the zones and split the map into bands and zones.

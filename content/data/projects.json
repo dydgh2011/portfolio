@@ -20,8 +20,7 @@
     },
     "highlights": [
       "on-device",
-      "ai-judge",
-      "penalties"
+      "ai-judge"
     ]
   },
   {
@@ -43,6 +42,7 @@
       "difficulty": 3
     },
     "highlights": [
+      "study-levelup",
       "study-combat",
       "spaced-repetition"
     ]

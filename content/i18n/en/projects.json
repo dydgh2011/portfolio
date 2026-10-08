@@ -1,19 +1,19 @@
 {
   "kelly": {
     "name": "Kelly",
-    "summary": "Local-first focus accountability app for macOS.",
+    "summary": "Local-first focus accountability system. AI judges your progress against your goals and punishes you for falling behind.",
     "highlights": {
       "on-device": { "metric": "On-device",   "text": "Logs app and input activity; data stays on your machine" },
-      "ai-judge":  { "metric": "AI judge",    "text": "A local model or your own API key scores you against your goals" },
-      "penalties": { "metric": "Real stakes", "text": "Missed goals trigger penalties, like automatic stock purchases" }
+      "ai-judge":  { "metric": "AI Judge",    "text": "A local model or your own API key scores you against your goals" }
     }
   },
   "nerdiest-dungeon": {
     "name": "The Nerdiest Dungeon",
-    "summary": "Pixel-art roguelike RPG that turns studying into combat.",
+    "summary": "Pixel-art roguelike RPG that the only way to make your character is to study.",
     "highlights": {
-      "study-combat":      { "metric": "Study = combat",    "text": "Monsters are question sets; correct answers cast skills" },
-      "spaced-repetition": { "metric": "Spaced repetition", "text": "Items expire unless you solve related review questions" }
+      "study-levelup":     { "metric": "Study = Level UP",  "text": "Solving questions or watching videos increases your character's stats" },
+      "study-combat":      { "metric": "Study = Combat",    "text": "Monsters are question sets, correct answers cast skills" },
+      "spaced-repetition": { "metric": "Spaced Repetition", "text": "Items expire unless you solve related review questions" }
     }
   },
   "what-to-cook": {
@@ -22,7 +22,7 @@
     "highlights": {
       "recipes": { "metric": "OpenAI + Search", "text": "Dish ideas and sourced recipes from on-hand ingredients" },
       "ops":     { "metric": "CI/CD to EC2",    "text": "Ran live with GitHub Actions, Jest e2e tests, and Sentry alerts" },
-      "auth":    { "metric": "5 sign-ins",      "text": "Google, Facebook, Twitter, local, and JWT authentication" }
+      "auth":    { "metric": "4 sign-ins",      "text": "Google, Facebook, Twitter, and email, with JWT sessions" }
     }
   }
 }

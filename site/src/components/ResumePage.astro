@@ -25,7 +25,7 @@ const base = import.meta.env.BASE_URL.replace(/\/$/, '');
 const languageName = (l: string) => new Intl.DisplayNames([l], { type: 'language' }).of(l) ?? l;
 const contactLabel: Record<string, string> = { email: 'Email', github: 'GitHub', linkedin: 'LinkedIn' };
 
-const sections = ['about', 'projects', 'experience', 'skills', 'education'] as const;
+const sections = ['about', 'experience', 'projects', 'skills', 'education'] as const;
 
 // The horizon treeline's size comes from its map file, so changing its rows/cols never stretches it.
 const horizonFile = import.meta.glob<{ cols: number; rows: number }>('../../scenes/horizon.json', { eager: true, import: 'default' });
@@ -111,38 +111,6 @@ const horizonStyle = `--horizon-w:calc(${horizon.cols} * var(--map-tile));--hori
       </div>
     </WorldSection>
 
-    <WorldSection id="projects" labelledby="projects-title" stop>
-      <h2 slot="title" id="projects-title" class="section-title"><Tile tile={sectionIcons.projects} />{ui.nav.projects}</h2>
-      <div class="entries">
-        {
-          projects.map((p) => (
-            <article id={`proj-${p.id}`} class="entry panel">
-              <h3>{p.name}</h3>
-              <div class="meta">
-                <span>
-                  {p.status === 'in-progress' && <span class="tag">{ui.labels.inProgress} · </span>}
-                  {formatRange(p.start, p.end, lang, ui)}
-                </span>
-              </div>
-              <p class="summary">{p.summary}</p>
-              <Highlights items={p.highlights} />
-              <SkillChips skills={p.skills} />
-              {(p.links.length > 0 || p.codeOnRequest) && (
-                <div class="notes">
-                  {p.links.map((l) => (
-                    <a href={l.url} rel="noopener">
-                      {l.type === 'github' ? `GitHub · ${ui.labels.source}` : l.url}
-                    </a>
-                  ))}
-                  {p.codeOnRequest && <span class="tag">{ui.labels.codeOnRequest}</span>}
-                </div>
-              )}
-            </article>
-          ))
-        }
-      </div>
-    </WorldSection>
-
     <WorldSection id="experience" labelledby="experience-title" stop>
       <h2 slot="title" id="experience-title" class="section-title"><Tile tile={sectionIcons.experience} />{ui.nav.experience}</h2>
       <div class="entries">
@@ -165,7 +133,39 @@ const horizonStyle = `--horizon-w:calc(${horizon.cols} * var(--map-tile));--hori
               </div>
               <p class="summary">{e.summary}</p>
               <Highlights items={e.highlights} />
-              <SkillChips skills={e.skills} />
+              <SkillChips skills={e.cardSkills} />
+            </article>
+          ))
+        }
+      </div>
+    </WorldSection>
+
+    <WorldSection id="projects" labelledby="projects-title" stop>
+      <h2 slot="title" id="projects-title" class="section-title"><Tile tile={sectionIcons.projects} />{ui.nav.projects}</h2>
+      <div class="entries">
+        {
+          projects.map((p) => (
+            <article id={`proj-${p.id}`} class="entry panel">
+              <h3>{p.name}</h3>
+              <div class="meta">
+                <span>
+                  {p.status === 'in-progress' && <span class="tag">{ui.labels.inProgress} · </span>}
+                  {formatRange(p.start, p.end, lang, ui)}
+                </span>
+              </div>
+              <p class="summary">{p.summary}</p>
+              <Highlights items={p.highlights} />
+              <SkillChips skills={p.cardSkills} />
+              {(p.links.length > 0 || p.codeOnRequest) && (
+                <div class="notes">
+                  {p.links.map((l) => (
+                    <a href={l.url} rel="noopener">
+                      {l.type === 'github' ? `GitHub · ${ui.labels.source}` : l.url}
+                    </a>
+                  ))}
+                  {p.codeOnRequest && <span class="tag">{ui.labels.codeOnRequest}</span>}
+                </div>
+              )}
             </article>
           ))
         }
@@ -205,8 +205,7 @@ const horizonStyle = `--horizon-w:calc(${horizon.cols} * var(--map-tile));--hori
               <div class="meta">
                 <span class="role">{e.degree}</span>
                 <span>
-                  {e.expected && `${ui.labels.expected} `}
-                  {formatMonth(e.end, lang, ui)}
+                  {e.expected ? ui.labels.expected.replace('{date}', formatMonth(e.end, lang, ui)) : formatMonth(e.end, lang, ui)}
                   {e.location && (
                     <span class="place">
                       {' · '}

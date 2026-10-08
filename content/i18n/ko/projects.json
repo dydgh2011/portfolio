@@ -1,15 +1,15 @@
 {
   "kelly": {
-    "summary": "macOS용 로컬 우선(local-first) 집중 관리 앱.",
+    "summary": "로컬 우선(local-first) 집중 관리 앱. AI가 목표 달성 진행 상황을 평가하고, 뒤처지면 벌을 줍니다.",
     "highlights": {
       "on-device": { "metric": "기기 내 저장", "text": "앱 사용과 입력 활동을 기록하고, 데이터는 내 기기에만 보관" },
-      "ai-judge":  { "metric": "AI 심판",     "text": "로컬 모델 또는 본인 API 키로 목표 달성을 평가" },
-      "penalties": { "metric": "진짜 벌칙",   "text": "목표를 놓치면 주식 자동 매수 같은 벌칙 실행" }
+      "ai-judge":  { "metric": "AI 심판",     "text": "로컬 모델 또는 본인 API 키로 목표 달성을 평가" }
     }
   },
   "nerdiest-dungeon": {
-    "summary": "공부를 전투로 바꾸는 픽셀아트 로그라이크 RPG.",
+    "summary": "공부를 전투로 바꾸는 픽셀아트 로그라이크 RPG (설계 중).",
     "highlights": {
+      "study-levelup":     { "metric": "공부 = 레벨 업",  "text": "문제를 풀거나 비디오를 시청하면 캐릭터의 능력치가 상승" },
       "study-combat":      { "metric": "공부 = 전투",  "text": "몬스터는 문제 세트, 정답을 맞히면 스킬 발동" },
       "spaced-repetition": { "metric": "간격 반복",    "text": "복습 문제를 풀지 않으면 아이템이 사라짐" }
     }
@@ -19,7 +19,7 @@
     "highlights": {
       "recipes": { "metric": "OpenAI + 검색",  "text": "가진 재료로 요리 추천과 출처 있는 레시피 제공" },
       "ops":     { "metric": "EC2 CI/CD",      "text": "GitHub Actions, Jest E2E 테스트, Sentry 알림으로 실서비스 운영" },
-      "auth":    { "metric": "로그인 5종",     "text": "Google, Facebook, Twitter, 로컬, JWT 인증 지원" }
+      "auth":    { "metric": "로그인 4종",     "text": "Google, Facebook, Twitter, 이메일 로그인 + JWT 세션" }
     }
   }
 }

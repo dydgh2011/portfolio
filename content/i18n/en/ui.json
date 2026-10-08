@@ -28,7 +28,7 @@
   },
   "labels": {
     "present": "Present",
-    "expected": "Expected",
+    "expected": "Expected {date}",
     "inProgress": "In progress",
     "codeOnRequest": "Code/docs on request",
     "usedIn": "Used in",
@@ -49,7 +49,7 @@
     "close": "OK"
   },
   "resume": {
-    "backend": "Backend",
-    "ai": "AI"
+    "backend": "Backend focus",
+    "ai": "AI engineering focus"
   }
 }

@@ -106,6 +106,8 @@ export function loadContent(lang: string) {
       start: e.start as string,
       end: e.end as string | null,
       skills: refs(e.skills),
+      // the chips on the card: `cardSkills` if set (the key ones), else all of `skills`
+      cardSkills: refs(e.cardSkills ?? e.skills),
       highlights: highlights(e.highlights, t),
     };
   });
@@ -124,6 +126,7 @@ export function loadContent(lang: string) {
       links: p.links as { type: string; url: string }[],
       codeOnRequest: !!p.codeOnRequest,
       skills: refs(p.skills),
+      cardSkills: refs(p.cardSkills ?? p.skills),
       highlights: highlights(p.highlights, t),
     };
   });
@@ -166,8 +169,10 @@ export type Content = ReturnType<typeof loadContent>;
 export function formatMonth(value: string | null | undefined, lang: string, ui: Json): string {
   if (!value) return ui.labels.present;
   const [y, m] = value.split('-').map(Number);
-  if (!m) return String(y);
-  return new Intl.DateTimeFormat(lang, { year: 'numeric', month: 'short' }).format(new Date(Date.UTC(y, m - 1, 1)));
+  if (!m) return new Intl.DateTimeFormat(lang, { year: 'numeric', timeZone: 'UTC' }).format(new Date(Date.UTC(y, 0, 1)));
+  // timeZone UTC: the date is made in UTC, so formatting it in the build machine's time zone
+  // (west of UTC) would show the month before.
+  return new Intl.DateTimeFormat(lang, { year: 'numeric', month: 'short', timeZone: 'UTC' }).format(new Date(Date.UTC(y, m - 1, 1)));
 }
 
 export function formatRange(start: string, end: string | null, lang: string, ui: Json): string {

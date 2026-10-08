@@ -855,7 +855,8 @@ html:has(.construction[open]) {
 }
 
 /* Phones: boxes are much narrower than on a laptop, so headings get smaller too (on top
-   of the --ui-s zoom) and the metric cards fit three to a row instead of breaking 2 + 1. */
+   of the --ui-s zoom) and the metric cards fit three to a row instead of breaking 2 + 1
+   (one per row on small phones, below). */
 @media (max-width: 560px) {
   .name {
     font-size: 24px;
@@ -893,6 +894,12 @@ html:has(.construction[open]) {
   .actions {
     gap: 6px;
     margin-top: 16px;
+  }
+}
+/* Small phones: three cards in a row get too narrow (metrics break, a few words per line). */
+@media (max-width: 480px) {
+  .highlights {
+    grid-template-columns: 1fr;
   }
 }
 

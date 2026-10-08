@@ -85,6 +85,10 @@ function checkSkillRefs(file: string, list: any[]) {
     for (const id of entry.skills ?? []) {
       if (!skillIds.has(id)) error(`${file} "${entry.id}": skill "${id}" does not exist`);
     }
+    // cardSkills (optional): the chips shown on the card, picked from `skills`
+    for (const id of entry.cardSkills ?? []) {
+      if (!(entry.skills ?? []).includes(id)) error(`${file} "${entry.id}": cardSkills "${id}" is not in its skills`);
+    }
     if (entry.game?.difficulty !== undefined && typeof entry.game.difficulty !== 'number') {
       error(`${file} "${entry.id}": game.difficulty must be a number`);
     }

@@ -62,6 +62,7 @@ Programming languages are **weapons** (basic attack style). Frameworks and tools
 
 ## Experience / projects / education
 - Each entry has `skills` (list of skill ids) and an optional `game.monster` + `game.difficulty`.
+- `skills` is the full list: it drives "Used in" in the Skills section and the game. If it is long, `cardSkills` (optional, picked from `skills`) sets the few chips shown on the card itself (about 8–10).
 - **Boss weakness = the entry's `skills`.** Hitting a boss with an item from that list deals `weaknessBonus` × damage. The game rules show where each skill was really used.
 - `highlights` is a list of ids. Text for each id lives in `i18n/<lang>/...json` as `{ "metric": "...", "text": "..." }`. The metric is in i18n because units change by language ("8 h / week" vs "주 8시간").
 
