@@ -31,6 +31,19 @@ const site = Astro.site ? new URL(base + '/', Astro.site).href : undefined;
     {site && languages.map((l) => <link rel="alternate" hreflang={l} href={`${site}${l}/`} />)}
     {site && <link rel="alternate" hreflang="x-default" href={`${site}${defaultLanguage}/`} />}
     <link rel="preload" href={pixelFont} as="font" type="font/woff2" crossorigin />
+    <script is:inline>
+      // Map scale: the page map (and the horizon) is drawn 1:1 from MAP_VIEW px wide up, and
+      // shrinks with the window below that, so narrow screens see the same scene as a laptop.
+      // CSS reads it as --map-s (1 without JS); content and text keep their size.
+      (() => {
+        const MAP_VIEW = 1280;
+        const root = document.documentElement;
+        const set = () => root.style.setProperty('--map-s', String(Math.min(1, root.clientWidth / MAP_VIEW)));
+        set();
+        addEventListener('resize', set);
+        addEventListener('DOMContentLoaded', set); // after the scrollbar shows up
+      })();
+    </script>
     <style set:html={`@font-face{font-family:'Galmuri11';font-weight:700;font-display:swap;src:url('${pixelFont}') format('woff2')}`}></style>
   </head>
   <body>

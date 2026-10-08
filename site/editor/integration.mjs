@@ -10,7 +10,7 @@ import { readFileSync, writeFileSync } from 'node:fs';
 import { fileURLToPath } from 'node:url';
 import { buildUi } from '../scripts/build-ui.mjs';
 import { NAME, listScenes, readScene, writeScene } from '../scripts/scene-io.mjs';
-import { layoutWorld } from '../scripts/world.mjs';
+import { layoutWorld, LIGHT_TYPES } from '../scripts/world.mjs';
 
 function send(res, status, body) {
   res.statusCode = status;
@@ -43,6 +43,15 @@ function check(scene) {
   if (scene.kind === 'world') {
     const { errors } = layoutWorld(scene);
     if (errors.length) return errors[0];
+    if (scene.lights !== undefined && !Array.isArray(scene.lights)) return 'lights must be a list';
+    for (const l of scene.lights ?? []) {
+      const bad = !(l?.type in LIGHT_TYPES) || !Number.isInteger(l.col) || !Number.isInteger(l.row)
+        || (l.color !== undefined && !/^#[0-9a-f]{3}([0-9a-f]{3})?$/i.test(l.color))
+        || (l.radius !== undefined && !(l.radius > 0 && l.radius <= 12))
+        || (l.intensity !== undefined && !(l.intensity >= 0 && l.intensity <= 1))
+        || (l.flicker !== undefined && ![true, false, 'breathe'].includes(l.flicker));
+      if (bad) return `bad light ${JSON.stringify(l)}`;
+    }
   }
   return null;
 }

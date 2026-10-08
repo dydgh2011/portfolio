@@ -21,6 +21,7 @@ All in `assets/kenney/`, each folder with its original `License.txt`. Created by
 ## Made for this repo
 
 - Pixel moon, `site/src/assets/moon.svg` (site sky)
+- Light-source sprites, `assets/custom/lights.png`, drawn by `site/scripts/make-light-sprites.mjs` in the Tiny packs' palette: wall torch, brazier, campfire, street lamp. The two lit windows are Tiny Town tiles 84 and 88 (Kenney, CC0) with the glass recolored.
 
 ## Fonts
 

@@ -1,5 +1,5 @@
 // Map editor client. Edits site/scenes/*.json through the dev API in integration.mjs.
-import { bandOfActor, layoutWorld, pathAt, ZONE_IDS } from '../scripts/world.mjs';
+import { bandOfActor, bandOfLight, layoutWorld, LIGHT_TYPES, LIGHTS_SHEET_COLS, pathAt, resolveLight, ZONE_IDS } from '../scripts/world.mjs';
 // The map is drawn the same way scripts/build-ui.mjs bakes it: layers in order,
 // 16 px tiles from the packed tilemaps, then the dusk tint.
 
@@ -34,6 +34,16 @@ function textToPoints(text: string): Actor['points'] | null {
   }
   return out.length ? out : null;
 }
+// See LIGHT_TYPES in world.mjs: type gives the sprite and the defaults.
+interface Light {
+  type: string;
+  col: number;
+  row: number;
+  color?: string;
+  radius?: number; // tiles
+  intensity?: number; // 0–1
+  flicker?: boolean | 'breathe';
+}
 interface Zone {
   id: string;
   from: number;
@@ -49,6 +59,7 @@ interface Scene {
   zones?: Zone[];
   layers: Layer[];
   actors?: Actor[];
+  lights?: Light[];
 }
 type Tool = 'paint' | 'erase' | 'rect' | 'patch' | 'pick' | 'select' | 'stamp' | 'scatter' | 'zone';
 type Slot = [Pack, number] | null;
@@ -153,7 +164,7 @@ let active = 0; // active layer index
 let hidden = new Set<number>(); // hidden layers (editor only, not saved)
 let tool: Tool = 'paint';
 let selected: [Pack, number] = ['town', 0];
-let palettePack: Pack | 'all' = 'town';
+let palettePack: Pack | 'all' | 'lights' = 'town';
 let library: Library = { patchSets: [], presets: [] };
 let patchIndex = 0;
 let selection: Rect | null = null; // select tool, inclusive cells
@@ -165,6 +176,10 @@ let showGrid = true;
 let dusk = true;
 let playActors = true;
 let selectedActor = -1;
+let selectedLight = -1;
+let placingLight: number | 'new' | null = null; // the next map click places this light
+let newLightType = 'torch';
+const lightSheets = {} as { raw: HTMLImageElement; dusk: HTMLImageElement };
 let dirty = false;
 const undoStack: string[] = [];
 const redoStack: string[] = [];
@@ -342,6 +357,115 @@ function actorPosition(a: Actor, time: number) {
   return { x: a.from, y: a.row, flip: false, alpha: 1 };
 }
 
+// Lights as on the site: sprite (flames animate), then a soft glow added on top (screen).
+const hexRgb = (hex: string) => {
+  const h = hex.length === 4 ? hex.replace(/\w/g, (c) => c + c) : hex;
+  return [1, 3, 5].map((i) => parseInt(h.slice(i, i + 2), 16));
+};
+// Same shape as the CSS @keyframes flicker / breathe.
+const FLICKER = [[0, 1, 1], [0.09, 0.82, 0.96], [0.17, 0.95, 1.01], [0.31, 0.78, 0.95], [0.42, 1, 1.02], [0.56, 0.88, 0.98], [0.68, 0.97, 1], [0.79, 0.8, 0.96], [0.9, 0.93, 1.01], [1, 1, 1]];
+function flickerAt(t: number): [number, number] {
+  const i = FLICKER.findIndex((f) => f[0] >= t);
+  const a = FLICKER[Math.max(0, i - 1)], b = FLICKER[i];
+  const k = b[0] > a[0] ? (t - a[0]) / (b[0] - a[0]) : 0;
+  return [a[1] + (b[1] - a[1]) * k, a[2] + (b[2] - a[2]) * k];
+}
+function drawLights(time: number) {
+  const S = T * zoom;
+  const sheet = dusk ? lightSheets.dusk : lightSheets.raw;
+  const lights = (scene.lights ?? []).map(resolveLight);
+  const phase = (l: Light) => ((l.col * 7 + l.row * 13) % 17) / 10;
+  const spriteAt = (index: number, c: number, r: number) =>
+    mctx.drawImage(sheet, (index % LIGHTS_SHEET_COLS) * T, Math.floor(index / LIGHTS_SHEET_COLS) * T, T, T, c * S, r * S, S, S);
+  for (const l of lights) {
+    if (!l.frames.length) continue;
+    const f = playActors && l.frames.length > 1 ? Math.floor(((time / 1000 + phase(l)) % 0.45) / 0.15) % l.frames.length : 0;
+    spriteAt(l.frames[f], l.col, l.row);
+    if (l.below !== undefined) spriteAt(l.below, l.col, l.row + 1);
+  }
+  mctx.globalCompositeOperation = 'screen';
+  for (const l of lights) {
+    let [alpha, scale] = [1, 1];
+    if (playActors && l.flicker === true) [alpha, scale] = flickerAt((((time / 1000 + phase(l)) % 2.3) + 2.3) % 2.3 / 2.3);
+    if (playActors && l.flicker === 'breathe') {
+      const k = (1 - Math.cos(((time / 1000 + phase(l)) / 4) * Math.PI)) / 2;
+      [alpha, scale] = [0.7 + 0.3 * k, 0.94 + 0.09 * k];
+    }
+    const x = (l.col + l.glowAt[0]) * S, y = (l.row + l.glowAt[1]) * S, rad = l.radius * S * scale;
+    const [r, g, b] = hexRgb(l.color);
+    const c = (a: number) => `rgba(${r},${g},${b},${a * l.intensity * alpha})`;
+    const grad = mctx.createRadialGradient(x, y, 0, x, y, rad);
+    grad.addColorStop(0, c(1));
+    grad.addColorStop(0.35, c(0.45));
+    grad.addColorStop(0.7, c(0.12));
+    grad.addColorStop(1, c(0));
+    mctx.fillStyle = grad;
+    mctx.fillRect(x - rad, y - rad, rad * 2, rad * 2);
+  }
+  mctx.globalCompositeOperation = 'source-over';
+  // With the Lights tab open, every light gets a faint box so they are easy to find.
+  if (palettePack === 'lights') {
+    mctx.strokeStyle = 'rgba(245,213,71,0.45)';
+    mctx.lineWidth = 1;
+    mctx.setLineDash([3, 3]);
+    lights.forEach((l, i) => i !== selectedLight && mctx.strokeRect(l.col * S + 0.5, l.row * S + 0.5, S - 1, (l.below !== undefined ? 2 : 1) * S - 1));
+    mctx.setLineDash([]);
+  }
+  const sel = lights[selectedLight];
+  if (sel) {
+    // Selected: a blinking box (faster right after it was picked), its glow's reach, and a label.
+    const fast = time < focusFlashUntil;
+    const on = Math.floor(time / (fast ? 120 : 500)) % 2 === 0;
+    const h = (sel.below !== undefined ? 2 : 1) * S;
+    mctx.lineWidth = 2;
+    mctx.strokeStyle = on ? '#f5d547' : '#ffffff';
+    mctx.strokeRect(sel.col * S - 2, sel.row * S - 2, S + 4, h + 4);
+    mctx.setLineDash([4, 4]);
+    mctx.beginPath();
+    mctx.arc((sel.col + sel.glowAt[0]) * S, (sel.row + sel.glowAt[1]) * S, sel.radius * S, 0, Math.PI * 2);
+    mctx.stroke();
+    mctx.setLineDash([]);
+    const label = `#${selectedLight + 1} ${sel.type}`;
+    mctx.font = 'bold 11px system-ui';
+    const w = mctx.measureText(label).width + 8;
+    const lx = sel.col * S + S / 2 - w / 2, ly = sel.row * S - 20;
+    mctx.fillStyle = '#f5d547';
+    mctx.fillRect(lx, ly, w, 15);
+    mctx.fillStyle = '#1b1830';
+    mctx.fillText(label, lx + 4, ly + 11);
+  }
+}
+
+// Select a light: highlight it in the list and on the map, and bring both into view.
+let focusFlashUntil = 0;
+function focusLight(i: number, { scrollMap = true, scrollList = true } = {}) {
+  selectedLight = i;
+  focusFlashUntil = performance.now() + 1200;
+  const items = $('lights').querySelectorAll('li');
+  items.forEach((x, j) => x.classList.toggle('selected', j === i));
+  if (scrollList) items[i]?.scrollIntoView({ block: 'nearest', behavior: 'smooth' });
+  const l = scene.lights?.[i];
+  if (scrollMap && l) {
+    const main = document.querySelector('main')!;
+    const S = T * zoom;
+    const m = main.getBoundingClientRect(), c = map.getBoundingClientRect();
+    const x = c.left - m.left + main.scrollLeft + (l.col + 0.5) * S;
+    const y = c.top - m.top + main.scrollTop + (l.row + 0.5) * S;
+    const visible = x > main.scrollLeft + 40 && x < main.scrollLeft + main.clientWidth - 40 && y > main.scrollTop + 40 && y < main.scrollTop + main.clientHeight - 40;
+    if (!visible) main.scrollTo({ left: x - main.clientWidth / 2, top: y - main.clientHeight / 2, behavior: 'smooth' });
+  }
+}
+
+// The light drawn on cell c, r (or the nearest one within a tile), or -1.
+function lightAt(c: number, r: number) {
+  let best = -1, dist = 1.5;
+  (scene.lights ?? []).map(resolveLight).forEach((l, i) => {
+    const d = Math.hypot(l.col - c, Math.max(0, l.row - r, r - (l.row + (l.below !== undefined ? 1 : 0))));
+    if (d < dist) (best = i), (dist = d);
+  });
+  return best;
+}
+
 function renderStatic() {
   const S = T * zoom;
   for (const cv of [map, overlay]) {
@@ -420,6 +544,8 @@ function render(time = performance.now()) {
       mctx.restore();
     });
   }
+
+  if (scene.kind === 'world') drawLights(time);
 
   // Selection, with the tiles being moved drawn at their new place.
   if (selection) {
@@ -508,6 +634,9 @@ function worldProblems(): string[] {
     const z = zones.find((z: Zone) => a.row >= z.from && a.row <= z.to);
     if (z) out.push(`actor ${i + 1} is in the "${z.id}" zone; actors go in bands (between zones)`);
   });
+  (scene.lights ?? []).forEach((l, i) => {
+    if (!bandOfLight(l, bands)) out.push(`light ${i + 1} (${l.type}) is in a zone; lights go in bands (between zones)`);
+  });
   return out;
 }
 
@@ -579,6 +708,7 @@ function insertRows(at: number, n: number) {
   }
   for (const z of scene.zones ?? []) for (const k of ['from', 'to', 'repeatFrom', 'repeatTo'] as const) if (z[k] >= at) z[k] += n;
   for (const a of scene.actors ?? []) if (a.row >= at) a.row += n;
+  for (const l of scene.lights ?? []) if (l.row >= at) l.row += n;
   scene.rows += n;
 }
 
@@ -599,6 +729,10 @@ function deleteRows(a: number, b: number) {
   }
   scene.actors = (scene.actors ?? []).filter((x) => x.row < a || x.row > b);
   for (const x of scene.actors) if (x.row > b) x.row -= n;
+  if (scene.lights) {
+    scene.lights = scene.lights.filter((x) => x.row < a || x.row > b);
+    for (const x of scene.lights) if (x.row > b) x.row -= n;
+  }
   scene.rows -= n;
 }
 
@@ -724,10 +858,64 @@ const pctx = palette.getContext('2d')!;
 const PS = 24; // palette tile size (1.5×, just for picking)
 const PACKS: Pack[] = ['town', 'farm', 'dungeon'];
 const LABEL = 16; // label height above each sheet in "All"
-const shownPacks = () => (palettePack === 'all' ? PACKS : [palettePack]);
+const shownPacks = (): Pack[] => (palettePack === 'all' ? PACKS : palettePack === 'lights' ? [] : [palettePack]);
 const blockHeight = () => (palettePack === 'all' ? LABEL : 0) + SHEET_ROWS * PS;
 
+// "Lights" tab: one box per light type; pick one, then click the map to place it.
+const LIGHT_BOX = 48;
+const LIGHT_LABEL = 14;
+const lightKinds = () => Object.keys(LIGHT_TYPES);
+function renderLightPalette() {
+  const per = Math.floor((SHEET_COLS * PS) / LIGHT_BOX);
+  const kinds = lightKinds();
+  palette.width = SHEET_COLS * PS;
+  palette.height = Math.ceil(kinds.length / per) * (LIGHT_BOX + LIGHT_LABEL);
+  pctx.imageSmoothingEnabled = false;
+  pctx.clearRect(0, 0, palette.width, palette.height);
+  kinds.forEach((kind, i) => {
+    const x = (i % per) * LIGHT_BOX, y = Math.floor(i / per) * (LIGHT_BOX + LIGHT_LABEL);
+    const l = resolveLight({ type: kind, col: 0, row: 0 });
+    pctx.fillStyle = '#2a2540';
+    pctx.fillRect(x + 2, y + 2, LIGHT_BOX - 4, LIGHT_BOX - 4);
+    const [r, g, b] = hexRgb(l.color);
+    const grad = pctx.createRadialGradient(x + 24, y + 22, 0, x + 24, y + 22, 20);
+    grad.addColorStop(0, `rgba(${r},${g},${b},0.6)`);
+    grad.addColorStop(1, `rgba(${r},${g},${b},0)`);
+    pctx.fillStyle = grad;
+    pctx.fillRect(x + 2, y + 2, LIGHT_BOX - 4, LIGHT_BOX - 4);
+    const sprite = (index: number, dy: number, size: number) =>
+      pctx.drawImage(lightSheets.raw, (index % LIGHTS_SHEET_COLS) * T, Math.floor(index / LIGHTS_SHEET_COLS) * T, T, T, x + (LIGHT_BOX - size) / 2, y + dy, size, size);
+    if (l.below !== undefined) (sprite(l.frames[0], 4, 20), sprite(l.below, 24, 20));
+    else if (l.frames.length) sprite(l.frames[0], 8, 32);
+    if (placingLight === 'new' && newLightType === kind) {
+      pctx.strokeStyle = '#f5d547';
+      pctx.lineWidth = 2;
+      pctx.strokeRect(x + 2, y + 2, LIGHT_BOX - 4, LIGHT_BOX - 4);
+    }
+    pctx.fillStyle = '#9a93b0';
+    pctx.font = '10px system-ui';
+    pctx.textAlign = 'center';
+    pctx.fillText(kind === 'window-gray' ? 'win gray' : kind, x + LIGHT_BOX / 2, y + LIGHT_BOX + 10);
+    pctx.textAlign = 'start';
+  });
+  $('selected-tile').textContent = placingLight === 'new' ? `Placing: ${newLightType} · click the map · Esc to stop` : 'Pick a light, then click the map';
+  document.querySelectorAll<HTMLButtonElement>('#packs button').forEach((b) => b.setAttribute('aria-pressed', String(b.dataset.pack === palettePack)));
+}
+function lightKindAt(e: MouseEvent) {
+  const per = Math.floor((SHEET_COLS * PS) / LIGHT_BOX);
+  const c = Math.floor(e.offsetX / LIGHT_BOX), r = Math.floor(e.offsetY / (LIGHT_BOX + LIGHT_LABEL));
+  return c < per ? lightKinds()[r * per + c] : undefined;
+}
+function startPlacingLight(kind: string) {
+  newLightType = kind;
+  $<HTMLSelectElement>('new-light-type').value = kind;
+  placingLight = 'new';
+  status(`Click the map to place a ${kind} (on the tile it stands on) · Esc to stop`);
+  if (palettePack === 'lights') renderLightPalette();
+}
+
 function renderPalette() {
+  if (palettePack === 'lights') return renderLightPalette();
   const packs = shownPacks();
   palette.width = SHEET_COLS * PS;
   palette.height = packs.length * blockHeight() + (packs.length - 1) * 8;
@@ -764,19 +952,26 @@ function paletteTile(e: MouseEvent): [Pack, number] | null {
 }
 
 palette.addEventListener('click', (e) => {
+  if (palettePack === 'lights') {
+    const kind = lightKindAt(e);
+    if (kind) startPlacingLight(kind);
+    return;
+  }
   const t = paletteTile(e);
   if (!t) return;
   selected = t;
+  placingLight = null;
   if (tool === 'erase' || tool === 'pick' || tool === 'select' || tool === 'stamp') setTool('paint');
   renderPalette();
 });
 palette.addEventListener('mousemove', (e) => {
+  if (palettePack === 'lights') return void ($('cursor').textContent = lightKindAt(e) ?? '');
   const t = paletteTile(e);
   $('cursor').textContent = t ? `palette: ${t[0]} ${t[1]}` : '';
 });
 document.querySelectorAll<HTMLButtonElement>('#packs button').forEach((b) =>
   b.addEventListener('click', () => {
-    palettePack = b.dataset.pack as Pack | 'all';
+    palettePack = b.dataset.pack as Pack | 'all' | 'lights';
     renderPalette();
   }),
 );
@@ -784,6 +979,7 @@ document.querySelectorAll<HTMLButtonElement>('#packs button').forEach((b) =>
 // ---------- tools ----------
 
 function setTool(t: Tool) {
+  if (placingLight === 'new') placingLight = null; // choosing a tool ends light placing
   tool = t;
   if (t !== 'select') selection = null;
   document.querySelectorAll<HTMLButtonElement>('#tools button').forEach((b) => b.setAttribute('aria-pressed', String(b.dataset.tool === t)));
@@ -1023,6 +1219,39 @@ function zoneUp() {
 let pickingPointFor: Actor | null = null;
 
 map.addEventListener('mousedown', (e) => {
+  if (palettePack === 'lights' && placingLight === null) {
+    // Lights tab: clicking the map selects the light there (tiles are not painted).
+    const { c, r } = cellFromEvent(e);
+    const i = lightAt(c, r);
+    if (i >= 0) {
+      focusLight(i, { scrollMap: false });
+      status(`Selected light #${i + 1} (${scene.lights![i].type}) at ${scene.lights![i].col},${scene.lights![i].row}`);
+    } else {
+      selectedLight = -1;
+      $('lights').querySelectorAll('li').forEach((x) => x.classList.remove('selected'));
+      status('No light here · pick a light above to place one');
+    }
+    return;
+  }
+  if (placingLight !== null) {
+    const { c, r } = cellFromEvent(e);
+    snapshot();
+    scene.lights ??= [];
+    if (placingLight === 'new') {
+      scene.lights.push({ type: newLightType, col: c, row: r });
+      selectedLight = scene.lights.length - 1;
+      status(`Added a ${newLightType} at ${c},${r} · click again for another · Esc to stop`, 'dirty');
+    } else {
+      Object.assign(scene.lights[placingLight], { col: c, row: r });
+      selectedLight = placingLight;
+      placingLight = null;
+      status(`Moved the light to ${c},${r}`, 'dirty');
+    }
+    renderLights();
+    focusLight(selectedLight, { scrollMap: false });
+    markDirty();
+    return;
+  }
   if (pickingPointFor) {
     const S = T * zoom;
     const x = Math.round((e.offsetX / S - 0.5) * 2) / 2; // half-tile steps, sprite top-left
@@ -1768,6 +1997,85 @@ $('add-actor').addEventListener('click', () => {
   markDirty();
 });
 
+// ---------- lights panel ----------
+
+const lightTypeOptions = () => Object.keys(LIGHT_TYPES).map((t) => `<option value="${t}">${t}</option>`).join('');
+
+function renderLights() {
+  $('lights-panel').classList.toggle('hidden', scene.kind !== 'world');
+  const list = $('lights');
+  list.innerHTML = '';
+  (scene.lights ?? []).forEach((l, i) => {
+    const d = resolveLight(l);
+    const li = document.createElement('li');
+    li.className = i === selectedLight ? 'selected' : '';
+    li.innerHTML = `
+      <div class="row">
+        <select data-k="type">${lightTypeOptions()}</select>
+        <span class="muted">${l.col},${l.row}</span>
+        <button data-act="move" title="Click the map to move it">move</button>
+        <span class="spacer"></span>
+        <button data-act="del" class="danger" title="Delete light">✕</button>
+      </div>
+      <div class="row">
+        <input type="color" data-k="color" title="Color" />
+        <label>size <input type="number" data-k="radius" step="0.2" min="0.4" max="12" title="Glow radius in tiles" /></label>
+        <label>power <input type="number" data-k="intensity" step="0.05" min="0" max="1" title="0–1" /></label>
+      </div>
+      <div class="row">
+        <label>motion <select data-k="flicker"><option value="true">flicker</option><option value="breathe">breathe</option><option value="false">steady</option></select></label>
+        <button data-act="reset" title="Back to the type's color, size, power and motion">defaults</button>
+      </div>`;
+    const color = d.color.length === 4 ? d.color.replace(/\w/g, (c: string) => c + c) : d.color;
+    const vals: Record<string, string> = { type: l.type, color, radius: String(d.radius), intensity: String(d.intensity), flicker: String(d.flicker) };
+    li.querySelectorAll<HTMLInputElement | HTMLSelectElement>('[data-k]').forEach((input) => {
+      const k = input.dataset.k!;
+      input.value = vals[k];
+      input.addEventListener('change', () => {
+        snapshot();
+        const t = LIGHT_TYPES[l.type as keyof typeof LIGHT_TYPES];
+        if (k === 'type') l.type = input.value;
+        else if (k === 'color') input.value.toLowerCase() === t.color ? delete l.color : (l.color = input.value);
+        else if (k === 'flicker') {
+          const v = input.value === 'breathe' ? 'breathe' : input.value === 'true';
+          v === t.flicker ? delete l.flicker : (l.flicker = v);
+        } else {
+          const n = Number(input.value);
+          if (Number.isNaN(n)) return;
+          const v = k === 'radius' ? Math.min(12, Math.max(0.4, n)) : Math.min(1, Math.max(0, n));
+          v === t[k as 'radius' | 'intensity'] ? delete l[k as 'radius' | 'intensity'] : (l[k as 'radius' | 'intensity'] = v);
+        }
+        renderLights();
+        markDirty();
+      });
+    });
+    li.addEventListener('mousedown', () => {
+      if (selectedLight !== i) focusLight(i, { scrollList: false });
+    });
+    li.querySelectorAll<HTMLButtonElement>('[data-act]').forEach((b) =>
+      b.addEventListener('click', () => {
+        if (b.dataset.act === 'move') {
+          placingLight = i;
+          return status('Click the map to put the light there · Esc to stop');
+        }
+        snapshot();
+        if (b.dataset.act === 'reset') for (const k of ['color', 'radius', 'intensity', 'flicker'] as const) delete l[k];
+        else {
+          scene.lights!.splice(i, 1);
+          selectedLight = -1;
+        }
+        renderLights();
+        markDirty();
+      }),
+    );
+    list.appendChild(li);
+  });
+}
+
+$<HTMLSelectElement>('new-light-type').innerHTML = lightTypeOptions();
+$<HTMLSelectElement>('new-light-type').addEventListener('change', (e) => (newLightType = (e.target as HTMLSelectElement).value));
+$('add-light').addEventListener('click', () => startPlacingLight(newLightType));
+
 // ---------- scene panel ----------
 
 function loadScene(n: string) {
@@ -1780,6 +2088,8 @@ function loadScene(n: string) {
   active = scene.layers.length - 1;
   hidden = new Set();
   selectedActor = -1;
+  selectedLight = -1;
+  placingLight = null;
   selection = null;
   undoStack.length = 0;
   redoStack.length = 0;
@@ -1794,6 +2104,7 @@ function loadScene(n: string) {
   renderBase();
   renderLayers();
   renderActors();
+  renderLights();
   renderZones();
   status(`Loaded scenes/${n}.json`);
   history.replaceState(null, '', `#${n}`);
@@ -1893,6 +2204,7 @@ function afterHistory() {
   renderBase();
   renderLayers();
   renderActors();
+  renderLights();
   renderZones();
   markDirty();
 }
@@ -1952,6 +2264,11 @@ window.addEventListener('keydown', (e) => {
     return;
   }
   if (e.key === 'Escape') {
+    if (placingLight !== null) {
+      placingLight = null;
+      renderPalette();
+      return status('Stopped placing lights');
+    }
     if (pickingPointFor) {
       pickingPointFor = null;
       return status('Stopped adding points');
@@ -1996,6 +2313,18 @@ async function start() {
           img.onerror = reject;
           img.src = body.dataset[p]!;
           sheets[p] = img;
+        }),
+    ),
+  );
+  await Promise.all(
+    (['raw', 'dusk'] as const).map(
+      (k) =>
+        new Promise<void>((resolve, reject) => {
+          const img = new Image();
+          img.onload = () => resolve();
+          img.onerror = reject;
+          img.src = k === 'raw' ? body.dataset.lights! : body.dataset.lightsDusk!;
+          lightSheets[k] = img;
         }),
     ),
   );

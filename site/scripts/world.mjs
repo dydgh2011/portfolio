@@ -119,3 +119,31 @@ export function pathAt(points, speed, s) {
   const fade = Math.min(1, t / 0.3, (total - t) / 0.3);
   return { x: a.x + (b.x - a.x) * k, y: a.y + (b.y - a.y) * k, flip: a.flip, alpha: Math.max(0, fade) };
 }
+
+// ---------- lights ----------
+//
+// A light is a soft glow (added on top of the map, never darkening it), with an optional
+// sprite from assets/custom/lights.png (12 tiles per row). World data:
+//   lights: [{ type, col, row, color?, radius?, intensity?, flicker? }, ...]
+// col/row are the tile the light's object sits on. Lights live in bands, like actors.
+export const LIGHT_TYPES = {
+  torch: { frames: [0, 1, 2], color: '#ffb054', radius: 2.6, intensity: 0.85, flicker: true, glowAt: [0.5, 0.3] },
+  brazier: { frames: [3, 4, 5], color: '#ff9a3c', radius: 3.2, intensity: 0.9, flicker: true, glowAt: [0.5, 0.35] },
+  campfire: { frames: [6, 7, 8], color: '#ff8c3a', radius: 3.6, intensity: 0.95, flicker: true, glowAt: [0.5, 0.55] },
+  lamp: { frames: [9], below: 10, color: '#ffd27a', radius: 2.6, intensity: 0.75, flicker: false, glowAt: [0.5, 0.35] },
+  window: { frames: [11], color: '#ffcf6e', radius: 1.7, intensity: 0.65, flicker: false, glowAt: [0.5, 0.5] },
+  'window-gray': { frames: [12], color: '#ffcf6e', radius: 1.7, intensity: 0.65, flicker: false, glowAt: [0.5, 0.5] },
+  glow: { frames: [], color: '#8fd3ff', radius: 2, intensity: 0.6, flicker: false, glowAt: [0.5, 0.5] },
+};
+export const LIGHTS_SHEET_COLS = 12;
+
+/** A light with its type's defaults filled in. */
+export function resolveLight(light) {
+  const t = LIGHT_TYPES[light?.type] ?? LIGHT_TYPES.glow;
+  return { ...t, ...light, color: light.color ?? t.color, radius: light.radius ?? t.radius, intensity: light.intensity ?? t.intensity, flicker: light.flicker ?? t.flicker };
+}
+
+/** The band a light belongs to (by its row), or undefined. */
+export function bandOfLight(light, bands) {
+  return bands.find((b) => b.to >= b.from && light.row >= b.from && light.row <= b.to);
+}

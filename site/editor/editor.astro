@@ -3,6 +3,8 @@
 import town from '../../assets/kenney/tiny-town/tilemap_packed.png?url';
 import farm from '../../assets/kenney/tiny-farm/tilemap_packed.png?url';
 import dungeon from '../../assets/kenney/tiny-dungeon/tilemap_packed.png?url';
+import lights from '../../assets/custom/lights.png?url';
+import lightsDusk from '../src/assets/ui/lights.png?url';
 
 const api = `${import.meta.env.BASE_URL.replace(/\/$/, '')}/__scenes`;
 ---
@@ -358,7 +360,7 @@ const api = `${import.meta.env.BASE_URL.replace(/\/$/, '')}/__scenes`;
       }
     </style>
   </head>
-  <body data-api={api} data-town={town} data-farm={farm} data-dungeon={dungeon}>
+  <body data-api={api} data-town={town} data-farm={farm} data-dungeon={dungeon} data-lights={lights} data-lights-dusk={lightsDusk}>
     <header>
       <h1>Map editor</h1>
       <select id="scene-select" aria-label="Scene"></select>
@@ -381,6 +383,7 @@ const api = `${import.meta.env.BASE_URL.replace(/\/$/, '')}/__scenes`;
         <button data-pack="farm" aria-pressed="false">Farm</button>
         <button data-pack="dungeon" aria-pressed="false">Dungeon</button>
         <button data-pack="all" aria-pressed="false">All</button>
+        <button data-pack="lights" aria-pressed="false" title="Light sources: pick one, then click the map">Lights</button>
       </div>
       <canvas id="palette" width="288" height="264"></canvas>
       <p class="muted" id="selected-tile"></p>
@@ -569,6 +572,16 @@ const api = `${import.meta.env.BASE_URL.replace(/\/$/, '')}/__scenes`;
           <button id="add-actor">Add actor</button>
           <span class="muted">Click a sprite box to use the selected tile.</span>
         </div>
+      </div>
+
+      <div id="lights-panel">
+        <h2>Lights</h2>
+        <ul class="actors" id="lights"></ul>
+        <div class="row">
+          <select id="new-light-type"></select>
+          <button id="add-light">Place on map</button>
+        </div>
+        <span class="muted">Glows only add light; fires flicker. Put a light on the tile its object stands on.</span>
       </div>
     </aside>
 

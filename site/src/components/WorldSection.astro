@@ -10,7 +10,12 @@
 //   walk:   from → to along `row`, then up `up` rows (negative = down), then fades out
 //   wander: back and forth between from and to, flipping when it turns
 //   path:   through points [[col, row, pause?], ...] at `speed` tiles/s, then starts over
-import { bandOfActor, layoutWorld, pathTimeline, PX } from '../../scripts/world.mjs';
+//
+// Lights (see LIGHT_TYPES in world.mjs) also live in bands: an optional sprite (flame frames
+// animate) drawn on the map, and a soft glow that only adds light (blend: screen). The glow
+// is not clipped to the band, so it spills softly over the zones next to it.
+import { bandOfActor, bandOfLight, layoutWorld, LIGHTS_SHEET_COLS, pathTimeline, PX, resolveLight } from '../../scripts/world.mjs';
+import lightSheet from '../assets/ui/lights.png?url';
 import { tileStyle, type TileRef } from '../lib/sprites';
 
 interface Actor {
@@ -31,6 +36,7 @@ interface World {
   rows: number;
   zones?: unknown[];
   actors?: Actor[];
+  lights?: { type: string; col: number; row: number; color?: string; radius?: number; intensity?: number; flicker?: boolean | 'breathe' }[];
 }
 
 interface Props {
@@ -55,6 +61,16 @@ const bandImage = band && img(`world-band-${id}.png`);
 const bandRows = band ? band.to - band.from + 1 : 0;
 const actors = band && layout ? (world?.actors ?? []).filter((a) => bandOfActor(a, layout.bands) === band) : [];
 
+const lights = band && layout ? (world?.lights ?? []).filter((l) => bandOfLight(l, layout.bands) === band).map(resolveLight) : [];
+const sheetSize = `${LIGHTS_SHEET_COLS * PX}px ${2 * PX}px`;
+const frameAt = (index: number) => `-${(index % LIGHTS_SHEET_COLS) * PX}px -${Math.floor(index / LIGHTS_SHEET_COLS) * PX}px`;
+const rgba = (hex: string, a: number) => {
+  const h = hex.length === 4 ? hex.replace(/\w/g, (c) => c + c) : hex;
+  return `rgba(${[1, 3, 5].map((i) => parseInt(h.slice(i, i + 2), 16)).join(',')},${r1(a)})`;
+};
+// Spread the flicker so neighbouring fires don't pulse together.
+const phase = (l: { col: number; row: number }) => -(((l.col * 7 + l.row * 13) % 17) / 10);
+
 // Path actors get their own keyframes (positions in px inside the band).
 const r1 = (n: number) => Math.round(n * 1000) / 1000;
 const pathCss = actors
@@ -75,13 +91,15 @@ const pathStart = (a: Actor) => {
 };
 const pathTotal = (a: Actor) => pathTimeline(a.points, a.speed).total;
 
+// Map sizes on the page scale with --map-tile (one tile: 32 px, smaller on narrow screens).
+const mapWidth = `calc(${world?.cols ?? 0} * var(--map-tile))`;
 const parts = zone && {
   top: zone.repeatFrom - zone.from,
   natural: zone.to - zone.from + 1,
   images: [
-    zone.repeatFrom > zone.from && `url(${img(`world-zone-${id}-top.png`)}) center top / ${width}px auto no-repeat`,
-    zone.to > zone.repeatTo && `url(${img(`world-zone-${id}-bottom.png`)}) center bottom / ${width}px auto no-repeat`,
-    `url(${img(`world-zone-${id}-mid.png`)}) center ${(zone.repeatFrom - zone.from) * PX}px / ${width}px auto repeat-y`,
+    zone.repeatFrom > zone.from && `url(${img(`world-zone-${id}-top.png`)}) center top / ${mapWidth} auto no-repeat`,
+    zone.to > zone.repeatTo && `url(${img(`world-zone-${id}-bottom.png`)}) center bottom / ${mapWidth} auto no-repeat`,
+    `url(${img(`world-zone-${id}-mid.png`)}) center calc(${zone.repeatFrom - zone.from} * var(--map-tile)) / ${mapWidth} auto repeat-y`,
   ].filter(Boolean),
 };
 const hasTitle = Astro.slots.has('title');
@@ -90,8 +108,8 @@ const hasTitle = Astro.slots.has('title');
 <Tag id={id === 'end' ? undefined : id} class:list={['world-section', className, { plain: !zone && id !== 'end' }]} aria-labelledby={labelledby}>
   {
     bandImage && (
-      <div class="band" style={`height:${bandRows * PX}px;background-image:url(${bandImage});background-size:${width}px auto`}>
-        <div class="band-map" style={`width:${width}px`} aria-hidden="true">
+      <div class="band" style={`height:calc(${bandRows} * var(--map-tile));background-image:url(${bandImage});background-size:calc(${world!.cols} * var(--map-tile)) auto`}>
+        <div class="band-map" style={`width:${width}px;height:${bandRows * PX}px`} aria-hidden="true">
           {pathCss && <style is:inline set:html={pathCss} />}
           {actors.map((a, i) => (
             a.type === 'path' ? (
@@ -123,8 +141,49 @@ const hasTitle = Astro.slots.has('title');
             </span>
             )
           ))}
+          {lights.map((l) => [
+            l.frames.length > 0 && (
+              <span
+                class:list={['light-sprite', { lit: l.frames.length > 1 }]}
+                style={[
+                  `left:${l.col * PX}px`,
+                  `top:${(l.row - band!.from) * PX}px`,
+                  `background-image:url(${lightSheet})`,
+                  `background-size:${sheetSize}`,
+                  `background-position:${frameAt(l.frames[0])}`,
+                  l.frames.length > 1 && `--frames:${l.frames.length};--x0:-${(l.frames[0] % LIGHTS_SHEET_COLS) * PX}px;--y0:-${Math.floor(l.frames[0] / LIGHTS_SHEET_COLS) * PX}px`,
+                  `animation-delay:${phase(l)}s`,
+                ].filter(Boolean).join(';')}
+              />
+            ),
+            l.below !== undefined && (
+              <span
+                class="light-sprite"
+                style={`left:${l.col * PX}px;top:${(l.row - band!.from + 1) * PX}px;background-image:url(${lightSheet});background-size:${sheetSize};background-position:${frameAt(l.below)}`}
+              />
+            ),
+          ])}
         </div>
-        {hasTitle && (
+        {lights.length > 0 && (
+          <div class="band-lights" style={`width:${width}px;height:${bandRows * PX}px`} aria-hidden="true">
+            {lights.map((l) => {
+              const d = l.radius * 2 * PX;
+              return (
+                <span
+                  class:list={['glow', { flicker: l.flicker === true, breathe: l.flicker === 'breathe' }]}
+                  style={[
+                    `left:${r1((l.col + l.glowAt[0]) * PX - d / 2)}px`,
+                    `top:${r1((l.row - band!.from + l.glowAt[1]) * PX - d / 2)}px`,
+                    `width:${r1(d)}px;height:${r1(d)}px`,
+                    `background:radial-gradient(circle closest-side,${rgba(l.color, l.intensity)} 0%,${rgba(l.color, l.intensity * 0.45)} 35%,${rgba(l.color, l.intensity * 0.12)} 70%,${rgba(l.color, 0)} 100%)`,
+                    `animation-delay:${phase(l)}s`,
+                  ].join(';')}
+                />
+              );
+            })}
+          </div>
+        )}
+        {hasTitle && id === 'end' && (
           <div class="wrap band-title">
             <slot name="title" />
           </div>
@@ -137,12 +196,17 @@ const hasTitle = Astro.slots.has('title');
       <div
         class="zone"
         data-zone={parts ? '' : undefined}
-        data-px={PX}
-        data-natural={parts ? parts.natural * PX : undefined}
-        style={parts ? `min-height:${parts.natural * PX}px;background:${parts.images.join(',')}` : undefined}
+        data-rows={parts ? parts.natural : undefined}
+        style={parts ? `min-height:calc(${parts.natural} * var(--map-tile));background:${parts.images.join(',')}` : undefined}
       >
         <div class="wrap zone-content">
-          {hasTitle && !bandImage && <slot name="title" />}
+          {/* The title sits at the bottom of the band above (over the scene) on wide screens,
+              and at the top of the content on narrow ones, where the scene is too small to cover. */}
+          {hasTitle && (
+            <div class:list={['zone-title', { 'over-band': bandImage }]}>
+              <slot name="title" />
+            </div>
+          )}
           <slot />
         </div>
       </div>

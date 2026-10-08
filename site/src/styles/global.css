@@ -179,10 +179,11 @@ h3,
 .band-map {
   position: absolute;
   top: 0;
-  bottom: 0;
   left: 50%;
   overflow: hidden;
-  transform: translateX(-50%);
+  /* drawn at full size (32 px tiles), then scaled with the map */
+  transform: translateX(-50%) scale(var(--map-s));
+  transform-origin: 50% 0;
 }
 /* The section title sits at the bottom of its band, right above the content. */
 .band-title {
@@ -192,8 +193,26 @@ h3,
   left: 0;
   z-index: 2;
 }
-.band-title .section-title {
+.band-title .section-title,
+.zone-title.over-band .section-title {
   margin: 0;
+}
+/* Section title of a zone with a scene band above: drawn over the band's bottom edge,
+   like .band-title. Below 1280 px the map shrinks (see --map-s), so the title moves into
+   the content instead of hiding half of the smaller scene. */
+.zone-title.over-band {
+  position: absolute;
+  bottom: 100%;
+  left: 16px; /* the .wrap padding */
+  right: 16px;
+}
+@media (max-width: 1279.98px) {
+  .zone-title.over-band {
+    position: static;
+  }
+  .zone-title.over-band .section-title {
+    margin: 0 0 16px;
+  }
 }
 .zone-content {
   position: relative;
@@ -228,6 +247,57 @@ h3,
 .actor.wander {
   animation-name: wander;
 }
+/* Lights (world.json "lights"): sprites sit on the map; glows only add light and may
+   spill over the band's edges (the band clips only sideways). */
+.light-sprite {
+  position: absolute;
+  width: var(--tile, 32px);
+  height: var(--tile, 32px);
+  image-rendering: pixelated;
+}
+.light-sprite.lit {
+  animation: flame 0.45s steps(var(--frames)) infinite;
+}
+@keyframes flame {
+  from { background-position: var(--x0) var(--y0); }
+  to { background-position: calc(var(--x0) - var(--frames) * 32px) var(--y0); }
+}
+.band-lights {
+  position: absolute;
+  top: 0;
+  left: 50%;
+  z-index: 1;
+  transform: translateX(-50%) scale(var(--map-s));
+  transform-origin: 50% 0;
+  pointer-events: none;
+}
+.glow {
+  position: absolute;
+  border-radius: 50%;
+  mix-blend-mode: screen;
+}
+.glow.flicker {
+  animation: flicker 2.3s linear infinite;
+}
+.glow.breathe {
+  animation: breathe 4s ease-in-out infinite alternate;
+}
+@keyframes flicker {
+  0% { opacity: 1; transform: scale(1); }
+  9% { opacity: 0.82; transform: scale(0.96); }
+  17% { opacity: 0.95; transform: scale(1.01); }
+  31% { opacity: 0.78; transform: scale(0.95); }
+  42% { opacity: 1; transform: scale(1.02); }
+  56% { opacity: 0.88; transform: scale(0.98); }
+  68% { opacity: 0.97; transform: scale(1); }
+  79% { opacity: 0.8; transform: scale(0.96); }
+  90% { opacity: 0.93; transform: scale(1.01); }
+  100% { opacity: 1; transform: scale(1); }
+}
+@keyframes breathe {
+  from { opacity: 0.7; transform: scale(0.94); }
+  to { opacity: 1; transform: scale(1.03); }
+}
 /* path: keyframes are generated per actor (WorldSection.astro) */
 .actor.path {
   top: 0;
@@ -254,37 +324,39 @@ h3,
 
 /* ---------- header ---------- */
 
-/* Edge shade: past the laptop width (640 px either side of the center) the map gets
-   darker toward the left and right, in steps one tile (32 px) wide, so the steps line
-   up with the map's tiles. Covers the page map and the horizon treeline, not the sky.
-   Content, titles and the header panel sit above it.
-   Tune: amax (here 0.7) in the outermost color, the step count, or the 640 px start. */
+/* Edge shade: from where the edge forest starts (cols 22 / 57 of the 80-col map, i.e. 17 tiles
+   either side of the center) the map gets darker toward the left and right, in steps one
+   tile (--map-tile) wide, so the steps line up with the map's tiles at any map scale. Covers the page map and the
+   horizon treeline, not the sky. Content, titles and the header panel sit above it.
+   Tune: amax (here 0.7) in the outermost color, the step count, or the 17-tile start. */
 :root {
+  --map-s: 1; /* set by Base.astro: below 1280 px wide the map shrinks with the window */
+  --map-tile: calc(32px * var(--map-s)); /* one map tile on the page */
   --edge-shade: linear-gradient(
     to right,
-    rgba(10, 8, 24, 0.7) 0 calc(50% - 960px),
-    rgba(10, 8, 24, 0.7) calc(50% - 960px) calc(50% - 928px),
-    rgba(10, 8, 24, 0.591) calc(50% - 928px) calc(50% - 896px),
-    rgba(10, 8, 24, 0.49) calc(50% - 896px) calc(50% - 864px),
-    rgba(10, 8, 24, 0.396) calc(50% - 864px) calc(50% - 832px),
-    rgba(10, 8, 24, 0.309) calc(50% - 832px) calc(50% - 800px),
-    rgba(10, 8, 24, 0.231) calc(50% - 800px) calc(50% - 768px),
-    rgba(10, 8, 24, 0.162) calc(50% - 768px) calc(50% - 736px),
-    rgba(10, 8, 24, 0.102) calc(50% - 736px) calc(50% - 704px),
-    rgba(10, 8, 24, 0.053) calc(50% - 704px) calc(50% - 672px),
-    rgba(10, 8, 24, 0.018) calc(50% - 672px) calc(50% - 640px),
-    transparent calc(50% - 640px) calc(50% + 640px),
-    rgba(10, 8, 24, 0.018) calc(50% + 640px) calc(50% + 672px),
-    rgba(10, 8, 24, 0.053) calc(50% + 672px) calc(50% + 704px),
-    rgba(10, 8, 24, 0.102) calc(50% + 704px) calc(50% + 736px),
-    rgba(10, 8, 24, 0.162) calc(50% + 736px) calc(50% + 768px),
-    rgba(10, 8, 24, 0.231) calc(50% + 768px) calc(50% + 800px),
-    rgba(10, 8, 24, 0.309) calc(50% + 800px) calc(50% + 832px),
-    rgba(10, 8, 24, 0.396) calc(50% + 832px) calc(50% + 864px),
-    rgba(10, 8, 24, 0.49) calc(50% + 864px) calc(50% + 896px),
-    rgba(10, 8, 24, 0.591) calc(50% + 896px) calc(50% + 928px),
-    rgba(10, 8, 24, 0.7) calc(50% + 928px) calc(50% + 960px),
-    rgba(10, 8, 24, 0.7) calc(50% + 960px)
+    rgba(10, 8, 24, 0.7) 0 calc(50% - 27 * var(--map-tile)),
+    rgba(10, 8, 24, 0.7) calc(50% - 27 * var(--map-tile)) calc(50% - 26 * var(--map-tile)),
+    rgba(10, 8, 24, 0.591) calc(50% - 26 * var(--map-tile)) calc(50% - 25 * var(--map-tile)),
+    rgba(10, 8, 24, 0.49) calc(50% - 25 * var(--map-tile)) calc(50% - 24 * var(--map-tile)),
+    rgba(10, 8, 24, 0.396) calc(50% - 24 * var(--map-tile)) calc(50% - 23 * var(--map-tile)),
+    rgba(10, 8, 24, 0.309) calc(50% - 23 * var(--map-tile)) calc(50% - 22 * var(--map-tile)),
+    rgba(10, 8, 24, 0.231) calc(50% - 22 * var(--map-tile)) calc(50% - 21 * var(--map-tile)),
+    rgba(10, 8, 24, 0.162) calc(50% - 21 * var(--map-tile)) calc(50% - 20 * var(--map-tile)),
+    rgba(10, 8, 24, 0.102) calc(50% - 20 * var(--map-tile)) calc(50% - 19 * var(--map-tile)),
+    rgba(10, 8, 24, 0.053) calc(50% - 19 * var(--map-tile)) calc(50% - 18 * var(--map-tile)),
+    rgba(10, 8, 24, 0.018) calc(50% - 18 * var(--map-tile)) calc(50% - 17 * var(--map-tile)),
+    transparent calc(50% - 17 * var(--map-tile)) calc(50% + 17 * var(--map-tile)),
+    rgba(10, 8, 24, 0.018) calc(50% + 17 * var(--map-tile)) calc(50% + 18 * var(--map-tile)),
+    rgba(10, 8, 24, 0.053) calc(50% + 18 * var(--map-tile)) calc(50% + 19 * var(--map-tile)),
+    rgba(10, 8, 24, 0.102) calc(50% + 19 * var(--map-tile)) calc(50% + 20 * var(--map-tile)),
+    rgba(10, 8, 24, 0.162) calc(50% + 20 * var(--map-tile)) calc(50% + 21 * var(--map-tile)),
+    rgba(10, 8, 24, 0.231) calc(50% + 21 * var(--map-tile)) calc(50% + 22 * var(--map-tile)),
+    rgba(10, 8, 24, 0.309) calc(50% + 22 * var(--map-tile)) calc(50% + 23 * var(--map-tile)),
+    rgba(10, 8, 24, 0.396) calc(50% + 23 * var(--map-tile)) calc(50% + 24 * var(--map-tile)),
+    rgba(10, 8, 24, 0.49) calc(50% + 24 * var(--map-tile)) calc(50% + 25 * var(--map-tile)),
+    rgba(10, 8, 24, 0.591) calc(50% + 25 * var(--map-tile)) calc(50% + 26 * var(--map-tile)),
+    rgba(10, 8, 24, 0.7) calc(50% + 26 * var(--map-tile)) calc(50% + 27 * var(--map-tile)),
+    rgba(10, 8, 24, 0.7) calc(50% + 27 * var(--map-tile))
   );
 }
 .world::after,
@@ -309,7 +381,7 @@ h3,
 .page-end {
   height: 0;
   background-position: center top;
-  background-size: 256px 256px;
+  background-size: calc(8 * var(--map-tile)) calc(8 * var(--map-tile));
   background-repeat: repeat;
 }
 
@@ -340,6 +412,7 @@ h3,
   --horizon-h: 96px;
   position: relative;
   isolation: isolate;
+  overflow: clip; /* the moon's glow */
   padding: 24px 0 calc(var(--horizon-h) + 16px);
   background:
     url('../assets/ui/horizon.png') center bottom / var(--horizon-w) var(--horizon-h) repeat-x,
@@ -357,18 +430,43 @@ h3,
 .moon {
   position: absolute;
   z-index: 2;
-  top: 20px;
+  top: 40px;
   right: 9%;
   width: 80px; /* the image is 20 px: keep whole multiples (×4) */
   height: 80px;
   image-rendering: pixelated;
   pointer-events: none;
 }
+/* Moonlight: a soft glow centered on the moon that only adds light (like the map's lights).
+   It fades out at 80% of its radius; keep that within --moon-y (--glow ≤ 2.5 × --moon-y)
+   so it ends before the header's top edge, or the clip shows as a line under the nav. */
+.moon-glow {
+  --moon-x: calc(9% + 40px); /* moon center, from the right */
+  --moon-y: 80px;
+  --glow: 200px;
+  position: absolute;
+  z-index: 1;
+  top: calc(var(--moon-y) - var(--glow) / 2);
+  right: calc(var(--moon-x) - var(--glow) / 2);
+  width: var(--glow);
+  height: var(--glow);
+  border-radius: 50%;
+  background: radial-gradient(circle closest-side, rgba(226, 234, 255, 0.45) 0%, rgba(200, 214, 255, 0.2) 28%, rgba(180, 198, 255, 0.06) 56%, rgba(180, 198, 255, 0) 80%);
+  mix-blend-mode: screen;
+  pointer-events: none;
+  animation: breathe 6s ease-in-out infinite alternate;
+}
 @media (max-width: 1100px) {
   .moon {
+    top: 32px;
     right: 16px;
     width: 60px;
     height: 60px;
+  }
+  .moon-glow {
+    --moon-x: 46px;
+    --moon-y: 62px;
+    --glow: 152px;
   }
 }
 /* stars */
@@ -652,7 +750,10 @@ h3,
     scroll-behavior: auto;
   }
   .actor,
-  .actor .tile {
+  .actor .tile,
+  .light-sprite,
+  .glow,
+  .moon-glow {
     animation: none !important;
   }
   .actor {
@@ -697,6 +798,7 @@ h3,
   .skip-link,
   .site-footer .game-note,
   .band-map,
+  .band-lights,
   .tile,
   .flag,
   .chip .swatch {
@@ -718,7 +820,8 @@ h3,
     min-height: 0 !important;
     background: none !important;
   }
-  .band-title {
+  .band-title,
+  .zone-title.over-band {
     position: static;
     padding: 0;
   }
@@ -743,7 +846,8 @@ h3,
   .site-header::before,
   .site-header::after,
   .world::after,
-  .moon {
+  .moon,
+  .moon-glow {
     display: none;
   }
   main section {

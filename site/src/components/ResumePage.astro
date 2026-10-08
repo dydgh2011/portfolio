@@ -6,7 +6,6 @@ import SkillChips from './SkillChips.astro';
 import WorldSection from './WorldSection.astro';
 import moon from '../assets/moon.svg';
 import rock from '../assets/ui/rock.png';
-import { PX } from '../../scripts/world.mjs';
 import Tile from './Tile.astro';
 import Flag from './Flag.astro';
 import { sectionIcons } from '../lib/sprites';
@@ -29,7 +28,7 @@ const sections = ['about', 'projects', 'experience', 'skills', 'education'] as c
 // The horizon treeline's size comes from its map file, so changing its rows/cols never stretches it.
 const horizonFile = import.meta.glob<{ cols: number; rows: number }>('../../scenes/horizon.json', { eager: true, import: 'default' });
 const horizon = horizonFile['../../scenes/horizon.json'] ?? { cols: 8, rows: 3 };
-const horizonStyle = `--horizon-w:${horizon.cols * PX}px;--horizon-h:${horizon.rows * PX}px`;
+const horizonStyle = `--horizon-w:calc(${horizon.cols} * var(--map-tile));--horizon-h:calc(${horizon.rows} * var(--map-tile))`;
 ---
 
 <Base lang={lang} title={`${profile.name} (${profile.preferredName}) · ${profile.headline}`} description={profile.about}>
@@ -44,6 +43,7 @@ const horizonStyle = `--horizon-w:${horizon.cols * PX}px;--horizon-h:${horizon.r
   </nav>
 
   <header class="site-header" style={horizonStyle}>
+    <span class="moon-glow" aria-hidden="true"></span>
     <img class="moon" src={moon.src} alt="" width="20" height="20" />
     <div class="wrap">
       <div class="panel">
@@ -239,17 +239,18 @@ const horizonStyle = `--horizon-w:${horizon.cols * PX}px;--horizon-h:${horizon.r
 
   <script>
     // Round each content zone up to whole map rows, so its repeated rows are never cut.
+    // A row is 32 px × --map-s (see Base.astro), so this reruns when the window resizes.
     const zones = document.querySelectorAll<HTMLElement>('[data-zone]');
-    const fit = (zone: HTMLElement) => {
-      const px = Number(zone.dataset.px);
-      const natural = Number(zone.dataset.natural);
-      const content = zone.firstElementChild as HTMLElement;
-      zone.style.height = `${Math.max(natural, Math.ceil(content.offsetHeight / px) * px)}px`;
+    const rowPx = () => 32 * (parseFloat(getComputedStyle(document.documentElement).getPropertyValue('--map-s')) || 1);
+    const fit = (zone: HTMLElement, px = rowPx()) => {
+      const rows = Math.max(Number(zone.dataset.rows), Math.ceil((zone.firstElementChild as HTMLElement).offsetHeight / px - 0.001));
+      zone.style.height = `${rows * px}px`;
     };
     const observer = new ResizeObserver((entries) => {
       for (const e of entries) fit(e.target.parentElement as HTMLElement);
     });
     zones.forEach((z) => observer.observe(z.firstElementChild as Element));
+    window.addEventListener('resize', () => zones.forEach((z) => fit(z)));
 
     // On tall screens the page can end before the last section reaches the top, so the
     // nav link would stop short. Add just enough rock below the map to let it scroll up.

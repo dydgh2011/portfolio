@@ -44,6 +44,19 @@ for (const s of sprites) {
   }
   writeFileSync(join(out, s.name), PNG.sync.write(png));
 }
+buildLightSprites();
+}
+
+// Light sprites (assets/custom/lights.png), tinted to dusk like the map, except the lit
+// pixels (flame and glass colors), which stay bright.
+const LIT = ['#e84537', '#ff706d', '#feae34', '#fee761'].map((c) => hex(c).join());
+function buildLightSprites() {
+  const png = PNG.sync.read(readFileSync(join(here, '../../assets/custom/lights.png')));
+  for (let i = 0; i < png.data.length; i += 4) {
+    if (LIT.includes(`${png.data[i]},${png.data[i + 1]},${png.data[i + 2]}`)) continue;
+    for (let k = 0; k < 3; k++) png.data[i + k] *= DUSK[k];
+  }
+  writeFileSync(join(out, 'lights.png'), PNG.sync.write(png));
 }
 // Maps: each is one PNG, tinted to dusk.
 const TILE = 16;
@@ -123,7 +136,7 @@ export function buildUi({ mapsOnly = false } = {}) {
   mkdirSync(out, { recursive: true });
   if (!mapsOnly) buildSprites();
   const maps = buildMaps();
-  return `build-ui: ${mapsOnly ? '' : `${sprites.length} sprites + `}${maps} maps → src/assets/ui/`;
+  return `build-ui: ${mapsOnly ? '' : `${sprites.length + 1} sprites + `}${maps} maps → src/assets/ui/`;
 }
 
 if (import.meta.url === pathToFileURL(process.argv[1]).href) console.log(buildUi());
