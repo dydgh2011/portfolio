@@ -1,0 +1,584 @@
+---
+// Map editor page (dev only, see integration.mjs). Open http://localhost:4321/portfolio/editor/
+import town from '../../assets/kenney/tiny-town/tilemap_packed.png?url';
+import farm from '../../assets/kenney/tiny-farm/tilemap_packed.png?url';
+import dungeon from '../../assets/kenney/tiny-dungeon/tilemap_packed.png?url';
+
+const api = `${import.meta.env.BASE_URL.replace(/\/$/, '')}/__scenes`;
+---
+
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>Map editor</title>
+    <style is:global>
+      :root {
+        color-scheme: dark;
+        --bg: #16141f;
+        --panel: #211e2e;
+        --line: #393450;
+        --text: #e8e4f0;
+        --muted: #9a93b0;
+        --accent: #f5d547;
+        --danger: #e4572e;
+        font: 13px/1.4 system-ui, -apple-system, sans-serif;
+      }
+      * {
+        box-sizing: border-box;
+      }
+      body {
+        margin: 0;
+        height: 100vh;
+        display: grid;
+        grid-template-columns: 320px 1fr 340px;
+        grid-template-rows: auto 1fr auto;
+        background: var(--bg);
+        color: var(--text);
+      }
+      header {
+        grid-column: 1 / -1;
+        display: flex;
+        flex-wrap: wrap;
+        align-items: center;
+        gap: 8px;
+        padding: 8px 12px;
+        border-bottom: 1px solid var(--line);
+        background: var(--panel);
+      }
+      header h1 {
+        margin: 0 8px 0 0;
+        font-size: 14px;
+      }
+      .spacer {
+        flex: 1;
+      }
+      aside {
+        overflow: auto;
+        padding: 10px;
+        background: var(--panel);
+      }
+      aside.left {
+        border-right: 1px solid var(--line);
+      }
+      aside.right {
+        border-left: 1px solid var(--line);
+      }
+      main {
+        display: flex;
+        flex-wrap: wrap;
+        align-content: flex-start;
+        align-items: flex-start;
+        gap: 16px;
+        overflow: auto;
+        padding: 16px;
+      }
+      #new-scene {
+        flex-basis: 100%;
+      }
+      footer {
+        grid-column: 1 / -1;
+        display: flex;
+        gap: 16px;
+        padding: 4px 12px;
+        border-top: 1px solid var(--line);
+        background: var(--panel);
+        color: var(--muted);
+        font: 12px ui-monospace, monospace;
+      }
+      h2 {
+        margin: 14px 0 6px;
+        font-size: 11px;
+        letter-spacing: 0.06em;
+        text-transform: uppercase;
+        color: var(--muted);
+      }
+      h2:first-child {
+        margin-top: 0;
+      }
+      button,
+      select,
+      input,
+      textarea {
+        font: inherit;
+        color: var(--text);
+        background: #2c2840;
+        border: 1px solid var(--line);
+        border-radius: 4px;
+        padding: 3px 7px;
+      }
+      button {
+        cursor: pointer;
+      }
+      button:hover {
+        border-color: var(--muted);
+      }
+      button[aria-pressed='true'] {
+        background: var(--accent);
+        border-color: var(--accent);
+        color: #16141f;
+      }
+      button.primary {
+        background: var(--accent);
+        color: #16141f;
+        border-color: var(--accent);
+        font-weight: 600;
+      }
+      button.danger:hover {
+        border-color: var(--danger);
+        color: var(--danger);
+      }
+      input[type='number'] {
+        width: 58px;
+      }
+      textarea {
+        width: 100%;
+        resize: vertical;
+      }
+      .row {
+        display: flex;
+        flex-wrap: wrap;
+        align-items: center;
+        gap: 6px;
+        margin: 4px 0;
+      }
+      .tools button {
+        min-width: 30px;
+      }
+      .muted {
+        color: var(--muted);
+      }
+      #status.dirty {
+        color: var(--accent);
+      }
+      #status.error {
+        color: var(--danger);
+      }
+      canvas {
+        display: block;
+        image-rendering: pixelated;
+      }
+      .map-wrap {
+        position: relative;
+        flex: none;
+      }
+      #overlay {
+        position: absolute;
+        inset: 0;
+        pointer-events: none;
+        image-rendering: pixelated;
+      }
+      #map {
+        cursor: crosshair;
+        background: repeating-conic-gradient(#2a2638 0% 25%, #232030 0% 50%) 0 0 / 16px 16px;
+        box-shadow: 0 0 0 1px var(--line);
+      }
+      #palette {
+        cursor: pointer;
+        background: repeating-conic-gradient(#3a3550 0% 25%, #302c44 0% 50%) 0 0 / 12px 12px;
+      }
+      #repeat {
+        box-shadow: 0 0 0 1px var(--line);
+      }
+      .slots {
+        display: grid;
+        grid-template-columns: repeat(3, 32px);
+        gap: 2px;
+        margin: 6px 0;
+      }
+      .slots .sprite {
+        border-style: dashed;
+      }
+      .scatter-items {
+        list-style: none;
+        margin: 6px 0;
+        padding: 0;
+      }
+      .scatter-items li {
+        display: flex;
+        align-items: center;
+        gap: 6px;
+        padding: 2px 0;
+      }
+      .scatter-items .sprite {
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        flex: none;
+        border: 1px solid var(--line);
+        border-radius: 3px;
+        color: var(--muted);
+      }
+      .scatter-items .grow {
+        flex: 1;
+        min-width: 0;
+        overflow: hidden;
+        text-overflow: ellipsis;
+        white-space: nowrap;
+      }
+      .scatter-items input[type='number'] {
+        width: 52px;
+      }
+      .checks {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 2px 10px;
+        margin: 2px 0 6px;
+      }
+      .preset-edit {
+        margin: 6px 0;
+        padding: 6px;
+        border: 1px solid var(--line);
+        border-radius: 4px;
+      }
+      .preset-edit .grow {
+        flex: 1;
+      }
+      .presets {
+        list-style: none;
+        margin: 0;
+        padding: 0;
+        display: flex;
+        flex-wrap: wrap;
+        gap: 4px;
+      }
+      .presets li {
+        display: flex;
+      }
+      .presets li button:first-child {
+        border-radius: 4px 0 0 4px;
+      }
+      .presets li button:last-child {
+        border-radius: 0 4px 4px 0;
+      }
+      .presets li button + button {
+        border-left: 0;
+      }
+      .presets li button:not(:first-child):not(:last-child) {
+        border-radius: 0;
+      }
+      button:disabled {
+        opacity: 0.5;
+        cursor: default;
+      }
+      .layers,
+      .actors {
+        list-style: none;
+        margin: 0;
+        padding: 0;
+      }
+      .layers li {
+        display: flex;
+        align-items: center;
+        gap: 4px;
+        padding: 3px 4px;
+        border-radius: 4px;
+      }
+      .layers li.active {
+        background: #3a3452;
+      }
+      .layers input[type='text'] {
+        flex: 1;
+        min-width: 0;
+        background: transparent;
+        border-color: transparent;
+      }
+      .layers input[type='text']:focus {
+        border-color: var(--line);
+      }
+      .layers button,
+      .actors button {
+        padding: 1px 5px;
+      }
+      .zones {
+        list-style: none;
+        margin: 0;
+        padding: 0;
+      }
+      .zones input[type='number'] {
+        width: 46px;
+      }
+      .zones li {
+        padding: 6px;
+        margin-bottom: 6px;
+        border: 1px solid var(--line);
+        border-radius: 4px;
+      }
+      .problems {
+        margin: 8px 0;
+        padding: 6px 6px 6px 22px;
+        border: 1px solid var(--danger);
+        border-radius: 4px;
+        color: var(--danger);
+      }
+      #stretch-box canvas {
+        box-shadow: 0 0 0 1px var(--line);
+      }
+      .actors li {
+        padding: 6px;
+        margin-bottom: 6px;
+        border: 1px solid var(--line);
+        border-radius: 4px;
+      }
+      .actors li.selected {
+        border-color: var(--accent);
+      }
+      .actors label {
+        display: inline-flex;
+        align-items: center;
+        gap: 3px;
+        color: var(--muted);
+      }
+      .sprite {
+        width: 32px;
+        height: 32px;
+        padding: 0;
+        image-rendering: pixelated;
+        background-repeat: no-repeat;
+      }
+      details {
+        margin-top: 12px;
+        color: var(--muted);
+      }
+      details summary {
+        cursor: pointer;
+      }
+      details ul {
+        padding-left: 16px;
+      }
+      kbd {
+        font: 11px ui-monospace, monospace;
+        padding: 0 4px;
+        border: 1px solid var(--line);
+        border-radius: 3px;
+      }
+      .hidden {
+        display: none !important;
+      }
+    </style>
+  </head>
+  <body data-api={api} data-town={town} data-farm={farm} data-dungeon={dungeon}>
+    <header>
+      <h1>Map editor</h1>
+      <select id="scene-select" aria-label="Scene"></select>
+      <span id="kind" class="muted"></span>
+      <button id="new-scene-toggle">New scene</button>
+      <span class="spacer"></span>
+      <label class="row">Zoom <select id="zoom"><option>1</option><option selected>2</option><option>3</option><option>4</option></select></label>
+      <button id="grid" aria-pressed="true" title="Grid (G)">Grid</button>
+      <button id="dusk" aria-pressed="true" title="Dusk tint (D)">Dusk</button>
+      <button id="play" aria-pressed="true" title="Animate actors (Space)">Actors</button>
+      <button id="undo" title="Undo (Ctrl+Z)">Undo</button>
+      <button id="redo" title="Redo (Ctrl+Shift+Z)">Redo</button>
+      <button id="save" class="primary" title="Save (Ctrl+S)">Save</button>
+    </header>
+
+    <aside class="left">
+      <h2>Tiles</h2>
+      <div class="row" id="packs">
+        <button data-pack="town" aria-pressed="true">Town</button>
+        <button data-pack="farm" aria-pressed="false">Farm</button>
+        <button data-pack="dungeon" aria-pressed="false">Dungeon</button>
+        <button data-pack="all" aria-pressed="false">All</button>
+      </div>
+      <canvas id="palette" width="288" height="264"></canvas>
+      <p class="muted" id="selected-tile"></p>
+
+      <h2>Tool</h2>
+      <div class="row tools" id="tools">
+        <button data-tool="paint" title="Paint (B)">Paint</button>
+        <button data-tool="erase" title="Erase (E) · right-click also erases">Erase</button>
+        <button data-tool="rect" title="Fill a rectangle (R)">Rect</button>
+        <button data-tool="patch" title="Patch with edges (P)">Patch</button>
+        <button data-tool="pick" title="Pick a tile from the map (I) · Alt+click also picks">Pick</button>
+        <button data-tool="select" title="Select an area (S): drag inside to move, Shift+drag to copy">Select</button>
+        <button data-tool="scatter" title="Scatter (T): drag an area to drop tiles and presets at random">Scatter</button>
+        <button data-tool="zone" class="hidden" title="Zones (Z): drag zone edges, move zones, draw new ones">Zones</button>
+      </div>
+      <div id="patch-options">
+        <div class="row">
+          <select id="patch-set" aria-label="Patch set"></select>
+          <button id="patch-delete" class="danger" title="Delete this set">✕</button>
+        </div>
+        <div class="row">
+          <label>size
+            <select id="patch-w" aria-label="Columns"><option>1</option><option>2</option><option>3</option></select>
+          </label>
+          ×
+          <select id="patch-h" aria-label="Rows"><option>1</option><option>2</option><option>3</option></select>
+          <span class="muted">(cols × rows)</span>
+        </div>
+        <div id="patch-slots" class="slots" title="Slots of the patch"></div>
+        <p class="muted">Click a slot to put the selected tile there. Right-click: leave it empty.
+          Each way: 1 slot = everywhere, 2 = first + rest, 3 = first + middle + last.</p>
+        <div class="row">
+          <input id="patch-name" placeholder="new set name" />
+          <button id="patch-new" title="New set, starting as a copy of this one">New set</button>
+        </div>
+      </div>
+      <p id="zone-options" class="muted hidden">
+        Drag a zone's top or bottom line to resize it, a dashed repeat line to change the repeat rows
+        (hold <kbd>Shift</kbd> when it sits on the zone's edge), or the inside to move the zone.
+        Drag on empty rows to draw a new zone.
+      </p>
+      <div id="scatter-options">
+        <div class="row">
+          <select id="scatter-set" aria-label="Scatter set"></select>
+          <button id="scatter-delete" class="danger" title="Delete this set">✕</button>
+        </div>
+        <div id="scatter-body">
+          <ul id="scatter-items" class="scatter-items"></ul>
+          <div class="row">
+            <button id="scatter-add-tile" title="Add the tile selected in the palette">+ Selected tile</button>
+          </div>
+          <div class="row">
+            <select id="scatter-preset" aria-label="Preset to add"></select>
+            <button id="scatter-add-preset">+ Preset</button>
+          </div>
+          <div class="row">
+            <label>Density <input id="scatter-density" type="number" min="0" max="100" step="1" /> %</label>
+          </div>
+          <label class="row"><input type="checkbox" id="scatter-overlap" /> Don't overlap each other</label>
+          <label class="row"><input type="checkbox" id="scatter-empty" /> Only on empty cells of the active layer</label>
+          <div class="row">
+            <button id="scatter-again" title="Undo the last scatter and roll it again in the same area">Scatter again</button>
+          </div>
+          <p class="muted">Drag an area on the map. Weight = how often each one is picked. Tiles go to the active layer; presets follow "Paste into layers with the same name".</p>
+        </div>
+        <div class="row">
+          <input id="scatter-name" placeholder="new set name" />
+          <button id="scatter-new" title="New set, starting as a copy of this one">New set</button>
+        </div>
+      </div>
+      <div id="select-options">
+        <div class="row">
+          <label>Works on
+            <select id="select-scope">
+              <option value="visible">all visible layers</option>
+              <option value="active">active layer only</option>
+            </select>
+          </label>
+        </div>
+        <div class="row">
+          <button id="copy" title="Ctrl+C">Copy</button>
+          <button id="cut" title="Ctrl+X">Cut</button>
+          <button id="paste" title="Ctrl+V">Paste</button>
+          <button id="delete-selection" class="danger" title="Delete">Delete</button>
+        </div>
+        <p class="muted">Drag inside the selection to move it, Shift+drag to copy it.</p>
+      </div>
+
+      <h2>Presets</h2>
+      <ul id="presets" class="presets"></ul>
+      <div id="preset-edit" class="preset-edit hidden"></div>
+      <div class="row">
+        <input id="preset-name" placeholder="name, e.g. red house" />
+        <button id="preset-save" title="Save the selected area (select tool) as a preset">Save selection</button>
+      </div>
+      <div class="row muted">
+        Layers to save:
+        <button id="preset-layers-all" title="Tick every layer">All</button>
+        <button id="preset-layers-none" title="Untick every layer">None</button>
+      </div>
+      <div id="preset-layers" class="checks"></div>
+      <label class="row"><input type="checkbox" id="keep-layers" checked /> Paste into layers with the same name</label>
+      <div id="world-tools">
+        <h2>Rows</h2>
+        <div class="row">
+          <input id="row-count" type="number" min="1" max="50" value="1" aria-label="How many rows" />
+          <button id="insert-rows" title="Insert rows above the selected row (select tool); they copy the row above">Insert rows</button>
+          <button id="delete-rows" class="danger" title="Delete the selected rows across the whole map">Delete selected rows</button>
+        </div>
+        <p class="muted">Everything below moves with it: tiles, zones and actors.</p>
+      </div>
+      <div class="row">
+        <button id="fill-grass" title="Fill the whole active layer with grass">Fill layer with grass</button>
+        <button id="clear-layer" class="danger">Clear layer</button>
+      </div>
+
+      <details>
+        <summary>Tile notes</summary>
+        <ul>
+          <li>Town 0 / 1 / 2: grass (plain, tufts, flowers)</li>
+          <li>Town 19: seamless forest fill; 18 / 20 its left / right edge; 7 / 31 top / bottom</li>
+          <li>Single trees: town 3 15 16 27 28, farm 15 27. Bushes: town 5, farm 39</li>
+          <li>Town 4 and farm 3 are halves of tall trees; they look cut off alone</li>
+          <li>Road (2 rows): town 13 on top, 37 below; ends 12 / 14 and 36 / 38</li>
+          <li>Town wall, front view: 99 100 101 parapet, 126 bricks, 113 114 open arch, 111 112 gate</li>
+          <li>Houses: roof 64 67 66 (red) or 60 63 62 (blue), walls 84 85 84 or 88 89 88</li>
+          <li>Animals for actors: farm 120 sheep, 121 cow, 122 chicken. Knight: dungeon 97</li>
+        </ul>
+      </details>
+      <details>
+        <summary>Keys</summary>
+        <ul>
+          <li><kbd>B</kbd> paint, <kbd>E</kbd> erase, <kbd>R</kbd> rect, <kbd>P</kbd> patch, <kbd>I</kbd> pick, <kbd>S</kbd> select, <kbd>T</kbd> scatter, <kbd>Z</kbd> zones (world map)</li>
+          <li>Select: <kbd>Ctrl</kbd>+<kbd>C</kbd> / <kbd>X</kbd> / <kbd>V</kbd>, <kbd>Delete</kbd>, <kbd>Esc</kbd> to deselect or stop pasting</li>
+          <li>Right-click erases, <kbd>Alt</kbd>+click picks</li>
+          <li><kbd>G</kbd> grid, <kbd>D</kbd> dusk, <kbd>Space</kbd> actors</li>
+          <li><kbd>Ctrl</kbd>+<kbd>Z</kbd> undo, <kbd>Ctrl</kbd>+<kbd>Shift</kbd>+<kbd>Z</kbd> redo, <kbd>Ctrl</kbd>+<kbd>S</kbd> save</li>
+        </ul>
+      </details>
+    </aside>
+
+    <main>
+      <form id="new-scene" class="row hidden">
+        <input id="new-name" placeholder="name, e.g. projects" required pattern="[a-z0-9]+(-[a-z0-9]+)*" />
+        <select id="new-kind"><option value="texture">texture (repeated)</option></select>
+        <label>cols <input id="new-cols" type="number" min="1" max="200" value="28" /></label>
+        <label>rows <input id="new-rows" type="number" min="1" max="200" value="6" /></label>
+        <button class="primary">Create</button>
+      </form>
+      <div class="map-wrap">
+        <canvas id="map"></canvas>
+        <canvas id="overlay" aria-hidden="true"></canvas>
+      </div>
+      <canvas id="repeat" class="hidden" title="How the texture looks when repeated"></canvas>
+      <div id="stretch-box" class="hidden">
+        <label class="row muted">Stretch preview (laptop width): each zone +
+          <input id="stretch-extra" type="number" min="0" max="64" value="6" /> rows</label>
+        <canvas id="stretch" title="The page with every zone stretched"></canvas>
+      </div>
+    </main>
+
+    <aside class="right">
+      <h2>Scene</h2>
+      <textarea id="note" rows="2" placeholder="What is this scene for?"></textarea>
+      <div class="row">
+        <label>cols <input id="cols" type="number" min="1" max="200" /></label>
+        <label>rows <input id="rows" type="number" min="1" max="200" /></label>
+        <button id="resize">Resize</button>
+      </div>
+
+      <h2>Layers <span class="muted">(top of the list draws on top)</span></h2>
+      <ul class="layers" id="layers"></ul>
+      <div class="row"><button id="add-layer">Add layer</button></div>
+
+      <div id="zones-panel" class="hidden">
+        <h2>Zones <span class="muted">(content goes here; repeat rows stretch)</span></h2>
+        <ul class="zones" id="zones"></ul>
+        <div class="row"><button id="add-zone">Add zone</button></div>
+        <ul id="zone-problems" class="problems hidden"></ul>
+      </div>
+
+      <div id="actors-panel">
+        <h2>Actors</h2>
+        <ul class="actors" id="actors"></ul>
+        <div class="row">
+          <button id="add-actor">Add actor</button>
+          <span class="muted">Click a sprite box to use the selected tile.</span>
+        </div>
+      </div>
+    </aside>
+
+    <footer>
+      <span id="status">Loading…</span>
+      <span id="cursor"></span>
+    </footer>
+
+    <script>
+      import './editor.ts';
+    </script>
+  </body>
+</html>

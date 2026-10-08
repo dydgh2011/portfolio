@@ -36,7 +36,11 @@
     "comingSoon": "게임 버전은 준비 중입니다.",
     "fullResume": "자세한 내용은 PDF 이력서에서",
     "skipToContent": "본문으로 건너뛰기",
-    "source": "소스 코드"
+    "source": "소스 코드",
+    "soon": "준비 중",
+    "credits": "크레딧",
+    "art": "그래픽",
+    "font": "폰트"
   },
   "resume": {
     "backend": "백엔드",

@@ -156,7 +156,9 @@ export function loadContent(lang: string) {
 
   const profile = { ...profileData, ...text(lang, 'profile'), resumes };
 
-  return { lang, ui, profile, experience, projects, education, categories, elements };
+  const playable = !!data('game').playable;
+
+  return { lang, ui, profile, experience, projects, education, categories, elements, playable };
 }
 
 export type Content = ReturnType<typeof loadContent>;

@@ -3,7 +3,10 @@ import Base from '../layouts/Base.astro';
 import Highlights from './Highlights.astro';
 import SkillChip from './SkillChip.astro';
 import SkillChips from './SkillChips.astro';
-import Scene from './Scene.astro';
+import WorldSection from './WorldSection.astro';
+import moon from '../assets/moon.svg';
+import rock from '../assets/ui/rock.png';
+import { PX } from '../../scripts/world.mjs';
 import Tile from './Tile.astro';
 import Flag from './Flag.astro';
 import { sectionIcons } from '../lib/sprites';
@@ -15,20 +18,35 @@ interface Props {
 }
 
 const { lang } = Astro.props;
-const { ui, profile, experience, projects, education, categories } = loadContent(lang);
+const { ui, profile, experience, projects, education, categories, playable } = loadContent(lang);
 const base = import.meta.env.BASE_URL.replace(/\/$/, '');
 
 const languageName = (l: string) => new Intl.DisplayNames([l], { type: 'language' }).of(l) ?? l;
 const contactLabel: Record<string, string> = { email: 'Email', github: 'GitHub', linkedin: 'LinkedIn' };
 
 const sections = ['about', 'projects', 'experience', 'skills', 'education'] as const;
+
+// The horizon treeline's size comes from its map file, so changing its rows/cols never stretches it.
+const horizonFile = import.meta.glob<{ cols: number; rows: number }>('../../scenes/horizon.json', { eager: true, import: 'default' });
+const horizon = horizonFile['../../scenes/horizon.json'] ?? { cols: 8, rows: 3 };
+const horizonStyle = `--horizon-w:${horizon.cols * PX}px;--horizon-h:${horizon.rows * PX}px`;
 ---
 
 <Base lang={lang} title={`${profile.name} (${profile.preferredName}) · ${profile.headline}`} description={profile.about}>
   <a class="skip-link" href="#main">{ui.labels.skipToContent}</a>
 
-  <header class="site-header">
+  <nav class="site-nav" aria-label="Sections">
     <div class="wrap">
+      <ul>
+        {sections.map((s) => <li><a href={`#${s}`}>{ui.nav[s]}</a></li>)}
+      </ul>
+    </div>
+  </nav>
+
+  <header class="site-header" style={horizonStyle}>
+    <img class="moon" src={moon.src} alt="" width="20" height="20" />
+    <div class="wrap">
+      <div class="panel">
       <div class="top">
         <div>
           <h1 class="name">
@@ -57,39 +75,42 @@ const sections = ['about', 'projects', 'experience', 'skills', 'education'] as c
           ))
         }
       </ul>
-      {
-        profile.resumes.length > 0 && (
-          <div class="actions">
-            {profile.resumes.map((r) => (
-              <a class="button" href={r.url} download={r.fileName}>
-                {ui.nav.resume} · {ui.resume?.[r.kind] ?? r.kind}
-              </a>
-            ))}
-          </div>
-        )
-      }
+      <div class="actions">
+        {
+          profile.resumes.map((r) => (
+            <a class="button" href={r.url} download={r.fileName}>
+              {ui.nav.resume} · {ui.resume?.[r.kind] ?? r.kind}
+            </a>
+          ))
+        }
+        {
+          playable ? (
+            <a class="button play" href={`${base}/play/`}>
+              {ui.nav.play}
+            </a>
+          ) : (
+            <button class="button play" type="button" disabled>
+              <Tile tile={['town', 117]} scale={1} />
+              {ui.nav.play} · {ui.labels.soon}
+            </button>
+          )
+        }
+      </div>
+      </div>
     </div>
-    <Scene />
   </header>
 
-  <nav class="site-nav" aria-label="Sections">
-    <div class="wrap">
-      <ul>
-        {sections.map((s) => <li><a href={`#${s}`}>{ui.nav[s]}</a></li>)}
-      </ul>
-    </div>
-  </nav>
-
-  <main id="main" class="wrap">
-    <section id="about" class="about" aria-labelledby="about-title">
-      <h2 id="about-title" class="section-title"><Tile tile={sectionIcons.about} />{ui.nav.about}</h2>
+  <div class="world">
+  <main id="main">
+    <WorldSection id="about" class="about" labelledby="about-title">
+      <h2 slot="title" id="about-title" class="section-title"><Tile tile={sectionIcons.about} />{ui.nav.about}</h2>
       <div class="panel">
         <p>{profile.about}</p>
       </div>
-    </section>
+    </WorldSection>
 
-    <section id="projects" aria-labelledby="projects-title">
-      <h2 id="projects-title" class="section-title"><Tile tile={sectionIcons.projects} />{ui.nav.projects}</h2>
+    <WorldSection id="projects" labelledby="projects-title">
+      <h2 slot="title" id="projects-title" class="section-title"><Tile tile={sectionIcons.projects} />{ui.nav.projects}</h2>
       <div class="entries">
         {
           projects.map((p) => (
@@ -118,10 +139,10 @@ const sections = ['about', 'projects', 'experience', 'skills', 'education'] as c
           ))
         }
       </div>
-    </section>
+    </WorldSection>
 
-    <section id="experience" aria-labelledby="experience-title">
-      <h2 id="experience-title" class="section-title"><Tile tile={sectionIcons.experience} />{ui.nav.experience}</h2>
+    <WorldSection id="experience" labelledby="experience-title">
+      <h2 slot="title" id="experience-title" class="section-title"><Tile tile={sectionIcons.experience} />{ui.nav.experience}</h2>
       <div class="entries">
         {
           experience.map((e) => (
@@ -147,10 +168,10 @@ const sections = ['about', 'projects', 'experience', 'skills', 'education'] as c
           ))
         }
       </div>
-    </section>
+    </WorldSection>
 
-    <section id="skills" aria-labelledby="skills-title">
-      <h2 id="skills-title" class="section-title"><Tile tile={sectionIcons.skills} />{ui.nav.skills}</h2>
+    <WorldSection id="skills" labelledby="skills-title">
+      <h2 slot="title" id="skills-title" class="section-title"><Tile tile={sectionIcons.skills} />{ui.nav.skills}</h2>
       <div class="panel skill-groups">
         {
           categories.map((c) => (
@@ -170,10 +191,10 @@ const sections = ['about', 'projects', 'experience', 'skills', 'education'] as c
           ))
         }
       </div>
-    </section>
+    </WorldSection>
 
-    <section id="education" aria-labelledby="education-title">
-      <h2 id="education-title" class="section-title"><Tile tile={sectionIcons.education} />{ui.nav.education}</h2>
+    <WorldSection id="education" labelledby="education-title">
+      <h2 slot="title" id="education-title" class="section-title"><Tile tile={sectionIcons.education} />{ui.nav.education}</h2>
       <div class="entries">
         {
           education.map((e: any) => (
@@ -197,14 +218,53 @@ const sections = ['about', 'projects', 'experience', 'skills', 'education'] as c
           ))
         }
       </div>
-    </section>
+    </WorldSection>
   </main>
 
-  <footer class="site-footer">
-    <div class="wrap">
-      {profile.resumes.length > 0 && <p>{ui.labels.fullResume}</p>}
-      <p class="game-note"><Tile tile={['dungeon', 108]} />{ui.labels.comingSoon}</p>
-      <p>© {new Date().getFullYear()} {profile.name}</p>
-    </div>
-  </footer>
+  <WorldSection id="footer" as="footer" class="site-footer">
+      <div class="plate">
+        {profile.resumes.length > 0 && <p>{ui.labels.fullResume}</p>}
+        {!playable && <p class="game-note"><Tile tile={['dungeon', 108]} />{ui.labels.comingSoon}</p>}
+        <p class="credits">
+          {ui.labels.art}: <a href="https://www.kenney.nl" rel="noopener">Kenney</a> (CC0) ·{' '}
+          {ui.labels.font}: <a href="https://github.com/quiple/galmuri" rel="noopener">Galmuri</a> (OFL) ·{' '}
+          <a href={`${profile.repo}/blob/master/CREDITS.md`} rel="noopener">{ui.labels.credits}</a>
+        </p>
+        <p>© {new Date().getFullYear()} {profile.name}</p>
+      </div>
+  </WorldSection>
+  <WorldSection id="end" as="div" />
+  <div class="page-end" style={`background-image:url(${rock.src})`} aria-hidden="true"></div>
+  </div>
+
+  <script>
+    // Round each content zone up to whole map rows, so its repeated rows are never cut.
+    const zones = document.querySelectorAll<HTMLElement>('[data-zone]');
+    const fit = (zone: HTMLElement) => {
+      const px = Number(zone.dataset.px);
+      const natural = Number(zone.dataset.natural);
+      const content = zone.firstElementChild as HTMLElement;
+      zone.style.height = `${Math.max(natural, Math.ceil(content.offsetHeight / px) * px)}px`;
+    };
+    const observer = new ResizeObserver((entries) => {
+      for (const e of entries) fit(e.target.parentElement as HTMLElement);
+    });
+    zones.forEach((z) => observer.observe(z.firstElementChild as Element));
+
+    // On tall screens the page can end before the last section reaches the top, so the
+    // nav link would stop short. Add just enough rock below the map to let it scroll up.
+    const pageEnd = document.querySelector<HTMLElement>('.page-end');
+    const last = document.getElementById('education');
+    const fitEnd = () => {
+      if (!pageEnd || !last) return;
+      const nav = parseFloat(getComputedStyle(document.documentElement).getPropertyValue('--nav-h')) || 0;
+      const current = pageEnd.offsetHeight;
+      const below = document.documentElement.scrollHeight - current - (last.getBoundingClientRect().top + window.scrollY);
+      const need = Math.max(0, Math.ceil(window.innerHeight - nav - below));
+      if (need !== current) pageEnd.style.height = `${need}px`;
+    };
+    new ResizeObserver(fitEnd).observe(document.querySelector('.world')!);
+    window.addEventListener('resize', fitEnd);
+    fitEnd();
+  </script>
 </Base>

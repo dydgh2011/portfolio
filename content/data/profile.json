@@ -11,6 +11,7 @@
     "backend": "resume/Yongho_Nam_Resume_Backend.pdf",
     "ai": "resume/Yongho_Nam_Resume_AI.pdf"
   },
+  "repo": "https://github.com/dydgh2011/portfolio",
   "languages": ["en", "ko"],
   "languageFlags": { "en": "CA", "ko": "KR" },
   "defaultLanguage": "en"

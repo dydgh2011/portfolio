@@ -14,6 +14,14 @@ All in `assets/kenney/`, each folder with its original `License.txt`. Created by
 | Tiny Town 1.1 | `tilemap_packed.png` | Site header scene; game later |
 | Tiny Farm 1.0 | `tilemap_packed.png` | Site header scene; game later |
 
+## Code libraries
+
+- [Lenis](https://github.com/darkroomengineering/lenis) — smooth wheel scrolling on the site. MIT License. Installed from npm, not committed.
+
+## Made for this repo
+
+- Pixel moon, `site/src/assets/moon.svg` (site sky)
+
 ## Fonts
 
 | Asset | Author | License | Used in |

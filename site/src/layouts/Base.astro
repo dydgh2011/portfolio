@@ -35,5 +35,19 @@ const site = Astro.site ? new URL(base + '/', Astro.site).href : undefined;
   </head>
   <body>
     <slot />
+    <script>
+      // Smooth mouse-wheel scrolling (Lenis). A plain wheel moves in big jumps; this eases
+      // between them. Touch and trackpads keep their native feel, and Lenis turns the
+      // smoothing off when the visitor prefers reduced motion. Nav links still work:
+      // Lenis handles the #anchors.
+      import Lenis from 'lenis';
+      import 'lenis/dist/lenis.css';
+
+      // Section links stop right below the sticky nav: html's scroll-padding-top is the nav's
+      // height, and Lenis already takes scroll-padding into account (so no extra offset here).
+      const nav = document.querySelector<HTMLElement>('.site-nav');
+      document.documentElement.style.setProperty('--nav-h', `${Math.floor(nav?.getBoundingClientRect().height ?? 0)}px`);
+      new Lenis({ autoRaf: true, lerp: 0.12, smoothWheel: true, anchors: true });
+    </script>
   </body>
 </html>

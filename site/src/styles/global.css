@@ -20,6 +20,13 @@
   --accent: #8c2f1b;
   --link: #1f4e8c;
   --focus: #f5d547;
+  /* Sky colors, top to bottom (the nav uses --sky-0). Edit freely. */
+  --sky-0: #17142e;
+  --sky-1: #1c1835;
+  --sky-2: #241e40;
+  --sky-3: #2f264b;
+  --sky-4: #3d2d55;
+  --sky-5: #52365c;
 
   --font-pixel: 'Galmuri11', ui-monospace, monospace;
   --font-body: system-ui, -apple-system, 'Segoe UI', 'Apple SD Gothic Neo', 'Malgun Gothic', 'Noto Sans KR', sans-serif;
@@ -34,14 +41,17 @@
 
 html {
   scroll-behavior: smooth;
-  scroll-padding-top: 64px;
+  scroll-padding-top: var(--nav-h, 44px); /* the sticky nav's height (set in Base.astro) */
+}
+/* Lenis (smooth wheel scrolling, see Base.astro) animates the scroll itself. */
+html.lenis {
+  scroll-behavior: auto;
 }
 
 body {
   margin: 0;
   background-color: var(--bg);
-  background-image: radial-gradient(var(--bg-dot) 1px, transparent 1px);
-  background-size: 12px 12px;
+  image-rendering: pixelated;
   color: var(--on-bg);
   font-family: var(--font-body);
   font-size: 16px;
@@ -121,6 +131,21 @@ h3,
 .button:hover {
   transform: translateY(-2px);
 }
+.button:disabled {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  cursor: not-allowed;
+  filter: grayscale(1) brightness(0.85);
+  transform: none;
+}
+
+/* dark plate for text that sits on the map */
+.plate {
+  border: 16px solid transparent;
+  border-image: url('../assets/ui/plate.png') 16 fill / 16px stretch;
+  color: var(--on-bg);
+}
 
 .tile {
   display: inline-block;
@@ -142,33 +167,86 @@ h3,
   image-rendering: auto;
 }
 
-/* header scene: farm → town → dungeon, knight walks the road */
-.scene {
-  display: flex;
-  justify-content: center;
-  overflow: hidden;
-  margin-top: 28px;
-}
-.scene-map {
+/* The map below the sky (site/scenes/world.json): each section is a scene band
+   (fixed height, holds the title and the actors) and a content zone that stretches.
+   Both images are as wide as the map and centered, so the map lines up across them. */
+.band {
   position: relative;
-  flex: none;
-  background-size: 100% 100%;
-  image-rendering: pixelated;
+  overflow-x: clip; /* the map is wider than the screen; the title may rise above a short band */
+  background-position: center top;
+  background-repeat: no-repeat;
 }
-.scene-walker {
+.band-map {
+  position: absolute;
+  top: 0;
+  bottom: 0;
+  left: 50%;
+  overflow: hidden;
+  transform: translateX(-50%);
+}
+/* The section title sits at the bottom of its band, right above the content. */
+.band-title {
+  position: absolute;
+  right: 0;
+  bottom: 0;
+  left: 0;
+  z-index: 2;
+}
+.band-title .section-title {
+  margin: 0;
+}
+.zone-content {
+  position: relative;
+  z-index: 2;
+  padding-top: 8px;
+  padding-bottom: 24px;
+}
+.world-section.plain {
+  margin: 40px 0;
+}
+
+.actor {
   position: absolute;
   left: 0;
-  top: calc(var(--tile) * 2 + var(--tile) / 2 - 4px);
-  animation: walk 18s steps(184) infinite;
+  top: calc(var(--tile) * var(--row));
+  animation-timing-function: linear;
+  animation-iteration-count: infinite;
+  filter: brightness(0.75) saturate(0.85); /* close to the dusk tint of the map */
 }
-.scene-walker img {
+.actor.hero {
+  filter: none;
+}
+.actor .tile {
   display: block;
   animation: bob 0.5s steps(1) infinite;
 }
+.actor.walk {
+  /* walks the middle of a 2-row road */
+  top: calc(var(--tile) * var(--row) + var(--tile) / 2 - 4px);
+  animation-name: walk;
+}
+.actor.wander {
+  animation-name: wander;
+}
+/* path: keyframes are generated per actor (WorldSection.astro) */
+.actor.path {
+  top: 0;
+}
+/* knight: along the road, then up through the gate */
 @keyframes walk {
-  0% { transform: translateX(0); opacity: 1; }
-  92% { transform: translateX(var(--gate)); opacity: 1; }
-  96%, 100% { transform: translateX(var(--gate)) translateY(calc(var(--tile) * -1)); opacity: 0; }
+  0% { transform: translate(var(--from), 0); opacity: 0; }
+  3% { opacity: 1; }
+  78% { transform: translate(var(--to), 0); }
+  92% { transform: translate(var(--to), calc(var(--up) * -1)); opacity: 1; }
+  96%, 100% { transform: translate(var(--to), calc(var(--up) * -1)); opacity: 0; }
+}
+/* animals face right; flip when walking back */
+@keyframes wander {
+  0% { transform: translateX(var(--from)) scaleX(1); }
+  46% { transform: translateX(var(--to)) scaleX(1); }
+  50% { transform: translateX(var(--to)) scaleX(-1); }
+  96% { transform: translateX(var(--from)) scaleX(-1); }
+  100% { transform: translateX(var(--from)) scaleX(1); }
 }
 @keyframes bob {
   50% { transform: translateY(-2px); }
@@ -176,9 +254,141 @@ h3,
 
 /* ---------- header ---------- */
 
+/* Edge shade: past the laptop width (640 px either side of the center) the map gets
+   darker toward the left and right, in steps one tile (32 px) wide, so the steps line
+   up with the map's tiles. Covers the page map and the horizon treeline, not the sky.
+   Content, titles and the header panel sit above it.
+   Tune: amax (here 0.7) in the outermost color, the step count, or the 640 px start. */
+:root {
+  --edge-shade: linear-gradient(
+    to right,
+    rgba(10, 8, 24, 0.7) 0 calc(50% - 960px),
+    rgba(10, 8, 24, 0.7) calc(50% - 960px) calc(50% - 928px),
+    rgba(10, 8, 24, 0.591) calc(50% - 928px) calc(50% - 896px),
+    rgba(10, 8, 24, 0.49) calc(50% - 896px) calc(50% - 864px),
+    rgba(10, 8, 24, 0.396) calc(50% - 864px) calc(50% - 832px),
+    rgba(10, 8, 24, 0.309) calc(50% - 832px) calc(50% - 800px),
+    rgba(10, 8, 24, 0.231) calc(50% - 800px) calc(50% - 768px),
+    rgba(10, 8, 24, 0.162) calc(50% - 768px) calc(50% - 736px),
+    rgba(10, 8, 24, 0.102) calc(50% - 736px) calc(50% - 704px),
+    rgba(10, 8, 24, 0.053) calc(50% - 704px) calc(50% - 672px),
+    rgba(10, 8, 24, 0.018) calc(50% - 672px) calc(50% - 640px),
+    transparent calc(50% - 640px) calc(50% + 640px),
+    rgba(10, 8, 24, 0.018) calc(50% + 640px) calc(50% + 672px),
+    rgba(10, 8, 24, 0.053) calc(50% + 672px) calc(50% + 704px),
+    rgba(10, 8, 24, 0.102) calc(50% + 704px) calc(50% + 736px),
+    rgba(10, 8, 24, 0.162) calc(50% + 736px) calc(50% + 768px),
+    rgba(10, 8, 24, 0.231) calc(50% + 768px) calc(50% + 800px),
+    rgba(10, 8, 24, 0.309) calc(50% + 800px) calc(50% + 832px),
+    rgba(10, 8, 24, 0.396) calc(50% + 832px) calc(50% + 864px),
+    rgba(10, 8, 24, 0.49) calc(50% + 864px) calc(50% + 896px),
+    rgba(10, 8, 24, 0.591) calc(50% + 896px) calc(50% + 928px),
+    rgba(10, 8, 24, 0.7) calc(50% + 928px) calc(50% + 960px),
+    rgba(10, 8, 24, 0.7) calc(50% + 960px)
+  );
+}
+.world::after,
+.site-header::after {
+  content: '';
+  position: absolute;
+  inset: 0;
+  z-index: 1;
+  pointer-events: none;
+  background: var(--edge-shade);
+}
+/* In the header, only the horizon treeline is shaded: the shade is cut to the shape of
+   the horizon image, so the sky between the tree tops stays untouched. */
+.site-header::after {
+  top: auto;
+  height: var(--horizon-h);
+  -webkit-mask: url('../assets/ui/horizon.png') center bottom / var(--horizon-w) var(--horizon-h) repeat-x;
+  mask: url('../assets/ui/horizon.png') center bottom / var(--horizon-w) var(--horizon-h) repeat-x;
+}
+
+/* Rock below the map, only as tall as needed for the last nav link (see ResumePage.astro). */
+.page-end {
+  height: 0;
+  background-position: center top;
+  background-size: 256px 256px;
+  background-repeat: repeat;
+}
+
+/* Below the sky: the page map (site/scenes/world.json), see .band and .zone. */
+.world {
+  position: relative;
+  isolation: isolate;
+  display: flow-root;
+  background-color: #2f4836; /* past the map's edges on very wide screens */
+}
+
+/* ---------- sky: the nav and the header ----------
+   Plain CSS, edit freely:
+   - colors: --sky-0 … --sky-5 at the top of this file, drawn as wide, low rings (an
+     ellipse 1400 px wide × 520 px tall, centered 140 px below the horizon's middle; hard
+     edges = pixel look). Make the ellipse wider/taller or move its center in the
+     radial-gradient below; the % stops are the ring sizes. The top stays --sky-0 so it
+     meets the nav without a seam.
+   - stars: the box-shadow list below, "x y color" from the top center
+   - moon: src/assets/moon.svg (replace it to change the moon), placed by .moon
+   - horizon: the treeline from site/scenes/horizon.json (its size is read from that
+     file, so any rows/cols work), centered like the map
+     below it so their tiles line up at any screen width.
+   The nav keeps --sky-0, so when it sticks while scrolling it still reads as sky. */
 .site-header {
-  padding: 40px 0 0;
-  border-bottom: var(--px) solid #14111f;
+  /* --horizon-w / --horizon-h are set on the element from site/scenes/horizon.json */
+  --horizon-w: 256px;
+  --horizon-h: 96px;
+  position: relative;
+  isolation: isolate;
+  padding: 24px 0 calc(var(--horizon-h) + 16px);
+  background:
+    url('../assets/ui/horizon.png') center bottom / var(--horizon-w) var(--horizon-h) repeat-x,
+    radial-gradient(
+      ellipse 1400px 520px at 50% calc(100% + 140px),
+      var(--sky-5) 0 34%,
+      var(--sky-4) 34% 46%,
+      var(--sky-3) 46% 58%,
+      var(--sky-2) 58% 70%,
+      var(--sky-1) 70% 84%,
+      var(--sky-0) 84%
+    )
+    var(--sky-0);
+}
+.moon {
+  position: absolute;
+  z-index: 2;
+  top: 20px;
+  right: 9%;
+  width: 80px; /* the image is 20 px: keep whole multiples (×4) */
+  height: 80px;
+  image-rendering: pixelated;
+  pointer-events: none;
+}
+@media (max-width: 1100px) {
+  .moon {
+    right: 16px;
+    width: 60px;
+    height: 60px;
+  }
+}
+/* stars */
+.site-header::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 50%;
+  width: 2px;
+  height: 2px;
+  background: #f3e9d2;
+  box-shadow:
+    -620px 14px #f3e9d2, -540px 60px #c9bfdc, -470px 22px #f3e9d2, -400px 90px #c9bfdc,
+    -330px 36px #f5d547, -250px 120px #c9bfdc, -180px 8px #f3e9d2, 170px 18px #f3e9d2,
+    240px 70px #c9bfdc, 320px 30px #f5d547, 400px 110px #c9bfdc, 470px 12px #f3e9d2,
+    540px 54px #c9bfdc, 610px 96px #f3e9d2, -600px 160px #c9bfdc, 590px 170px #c9bfdc;
+}
+.site-header .wrap {
+  position: relative;
+  z-index: 2;
 }
 .site-header .top {
   display: flex;
@@ -190,16 +400,16 @@ h3,
 .name {
   margin: 0;
   font-size: 36px;
-  color: var(--on-bg);
+  color: var(--ink);
 }
 .name .preferred {
-  color: var(--focus);
+  color: var(--accent);
 }
 .headline {
   margin: 8px 0 0;
   font-family: var(--font-pixel);
   font-size: 12px;
-  color: var(--on-bg-muted);
+  color: var(--muted);
 }
 .contacts {
   display: flex;
@@ -211,13 +421,13 @@ h3,
   font-size: 14px;
 }
 .contacts a {
-  color: var(--on-bg);
+  color: var(--link);
   text-underline-offset: 3px;
 }
 .contacts .type {
   font-family: var(--font-pixel);
   font-size: 12px;
-  color: var(--on-bg-muted);
+  color: var(--muted);
   margin-right: 6px;
 }
 .actions {
@@ -237,12 +447,12 @@ h3,
   display: inline-flex;
   align-items: center;
   padding: 4px 8px;
-  color: var(--on-bg-muted);
+  color: var(--muted);
   text-decoration: none;
 }
 .lang-switch a[aria-current='page'] {
-  color: var(--ink);
-  background: var(--on-bg);
+  color: var(--on-bg);
+  background: var(--ink);
 }
 
 /* ---------- nav ---------- */
@@ -251,8 +461,7 @@ h3,
   position: sticky;
   top: 0;
   z-index: 5;
-  background: var(--bg);
-  border-bottom: var(--px) solid #14111f;
+  background: var(--sky-0);
 }
 .site-nav ul {
   display: flex;
@@ -282,27 +491,16 @@ h3,
 
 /* ---------- sections ---------- */
 
-main section {
-  margin: 40px 0;
-}
 .section-title {
-  margin: 0 0 16px;
-  font-size: 24px;
-  color: var(--on-bg);
-}
-.section-title {
-  display: flex;
+  display: inline-flex;
   align-items: center;
   gap: 10px;
-}
-.section-title::after {
-  content: '';
-  flex: 1;
-  height: 22px;
-  margin-left: 6px;
-  background: url('../assets/ui/divider.png') right center / auto 22px no-repeat;
-  image-rendering: pixelated;
-  opacity: 0.6;
+  margin: 0 0 16px;
+  padding: 0 6px;
+  border: 16px solid transparent;
+  border-image: url('../assets/ui/plate.png') 16 fill / 16px stretch;
+  font-size: 22px;
+  color: var(--on-bg);
 }
 
 .about p {
@@ -422,12 +620,17 @@ main section {
 }
 
 .site-footer {
-  margin: 48px 0 32px;
   font-size: 13px;
   color: var(--on-bg-muted);
 }
 .site-footer p {
   margin: 4px 0;
+}
+.site-footer a {
+  color: var(--on-bg);
+}
+.site-footer .credits {
+  color: var(--on-bg-muted);
 }
 .site-footer .game-note {
   display: flex;
@@ -448,12 +651,18 @@ main section {
   html {
     scroll-behavior: auto;
   }
-  .scene-walker,
-  .scene-walker img {
-    animation: none;
+  .actor,
+  .actor .tile {
+    animation: none !important;
   }
-  .scene-walker {
-    transform: translateX(calc(var(--tile) * 9));
+  .actor {
+    transform: translateX(var(--from));
+  }
+  .actor.walk {
+    transform: translateX(calc(var(--tile) * 12));
+  }
+  .actor.path {
+    opacity: 1;
   }
   .button,
   .button:hover {
@@ -471,6 +680,12 @@ main section {
     --accent: #000;
     --link: #000;
   }
+  .world {
+    background: none;
+  }
+  .page-end {
+    display: none;
+  }
   body {
     background: #fff;
     color: #000;
@@ -481,20 +696,37 @@ main section {
   .actions,
   .skip-link,
   .site-footer .game-note,
-  .scene,
+  .band-map,
   .tile,
   .flag,
-  .section-title::after,
   .chip .swatch {
     display: none !important;
   }
   .panel,
   .card,
-  .button {
+  .button,
+  .plate,
+  .section-title {
     border: 0;
     border-image: none;
     background: none;
     padding: 0;
+  }
+  .band,
+  .zone {
+    height: auto !important;
+    min-height: 0 !important;
+    background: none !important;
+  }
+  .band-title {
+    position: static;
+    padding: 0;
+  }
+  .world-section {
+    margin: 18px 0;
+  }
+  .button.play {
+    display: none;
   }
   .name,
   .name .preferred,
@@ -505,7 +737,14 @@ main section {
     color: #000;
   }
   .site-header {
-    padding-top: 0;
+    padding: 0;
+    background: none;
+  }
+  .site-header::before,
+  .site-header::after,
+  .world::after,
+  .moon {
+    display: none;
   }
   main section {
     margin: 18px 0;

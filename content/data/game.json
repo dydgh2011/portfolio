@@ -1,4 +1,5 @@
 {
+  "playable": false,
   "route": ["intro", "skills", "education", "experience", "projects"],
   "classes": [
     { "id": "warrior", "enabled": true },

@@ -1,0 +1,217 @@
+{
+  "patchSets": [
+    {
+      "name": "Dirt",
+      "slots": [
+        ["town", 12],
+        ["town", 13],
+        ["town", 14],
+        ["town", 24],
+        ["town", 25],
+        ["town", 26],
+        ["town", 36],
+        ["town", 37],
+        ["town", 38]
+      ]
+    },
+    {
+      "name": "Stone floor",
+      "slots": [
+        ["town", 96],
+        ["town", 97],
+        ["town", 98],
+        ["town", 108],
+        ["town", 109],
+        ["town", 110],
+        ["town", 120],
+        ["town", 121],
+        ["town", 122]
+      ]
+    },
+    {
+      "name": "Forest",
+      "slots": [
+        ["town", 19],
+        ["town", 19],
+        ["town", 19],
+        ["town", 19],
+        ["town", 19],
+        ["town", 19],
+        ["town", 19],
+        ["town", 19],
+        ["town", 19]
+      ]
+    },
+    {
+      "name": "Autumn forest",
+      "slots": [
+        ["town", 9],
+        ["town", 10],
+        ["town", 11],
+        ["town", 21],
+        ["town", 22],
+        ["town", 23],
+        ["town", 33],
+        ["town", 34],
+        ["town", 35]
+      ]
+    },
+    {
+      "name": "side of forest",
+      "slots": [
+        ["town", 20],
+        ["town", 20],
+        ["town", 20]
+      ],
+      "w": 1,
+      "h": 3
+    },
+    {
+      "name": "dungeon wall",
+      "w": 3,
+      "h": 3,
+      "slots": [
+        ["dungeon", 0],
+        ["dungeon", 0],
+        ["dungeon", 0],
+        ["dungeon", 0],
+        ["dungeon", 0],
+        ["dungeon", 0],
+        ["dungeon", 0],
+        ["dungeon", 0],
+        ["dungeon", 0]
+      ]
+    },
+    {
+      "name": "fence v",
+      "w": 1,
+      "h": 3,
+      "slots": [
+        ["town", 59],
+        ["town", 59],
+        ["town", 59]
+      ]
+    }
+  ],
+  "presets": [
+    {
+      "name": "autom tree",
+      "w": 1,
+      "h": 2,
+      "tiles": [
+        [0, 0, "town", 3, "village"],
+        [0, 1, "town", 15, "village"]
+      ]
+    },
+    {
+      "name": "tree",
+      "w": 1,
+      "h": 2,
+      "tiles": [
+        [0, 0, "town", 4, "village"],
+        [0, 1, "town", 16, "village"]
+      ]
+    },
+    {
+      "name": "big dry",
+      "w": 1,
+      "h": 2,
+      "tiles": [
+        [0, 0, "farm", 2, "village"],
+        [0, 1, "farm", 14, "village"]
+      ]
+    },
+    {
+      "name": "small dry",
+      "w": 1,
+      "h": 2,
+      "tiles": [
+        [0, 0, "farm", 26, "village"],
+        [0, 1, "farm", 38, "village"]
+      ]
+    },
+    {
+      "name": "sharptree",
+      "w": 1,
+      "h": 2,
+      "tiles": [
+        [0, 0, "farm", 3, "village"],
+        [0, 1, "farm", 15, "village"]
+      ]
+    },
+    {
+      "name": "44dirt",
+      "w": 2,
+      "h": 2,
+      "tiles": [
+        [0, 0, "town", 0, "grass"],
+        [1, 0, "town", 0, "grass"],
+        [0, 1, "town", 0, "grass"],
+        [1, 1, "town", 0, "grass"],
+        [0, 0, "town", 12, "dirt"],
+        [1, 0, "town", 14, "dirt"],
+        [0, 1, "town", 36, "dirt"],
+        [1, 1, "town", 38, "dirt"]
+      ]
+    },
+    {
+      "name": "33dirt",
+      "w": 3,
+      "h": 3,
+      "tiles": [
+        [0, 0, "town", 0, "grass"],
+        [1, 0, "town", 0, "grass"],
+        [2, 0, "town", 0, "grass"],
+        [0, 1, "town", 1, "grass"],
+        [1, 1, "town", 0, "grass"],
+        [2, 1, "town", 0, "grass"],
+        [0, 2, "town", 1, "grass"],
+        [1, 2, "town", 0, "grass"],
+        [2, 2, "town", 0, "grass"],
+        [1, 1, "town", 40, "dirt"],
+        [2, 1, "town", 14, "dirt"],
+        [1, 2, "town", 37, "dirt"],
+        [2, 2, "town", 38, "dirt"],
+        [1, 0, "town", 14, "dirt"],
+        [0, 2, "town", 36, "dirt"],
+        [0, 1, "town", 24, "dirt"],
+        [0, 0, "town", 12, "dirt"]
+      ]
+    }
+  ],
+  "scatterSets": [
+    {
+      "name": "Trees",
+      "density": 11,
+      "noOverlap": true,
+      "emptyOnly": true,
+      "items": [
+        { "tile": ["town", 28], "weight": 3 },
+        { "tile": ["town", 27], "weight": 3 },
+        { "tile": ["town", 5], "weight": 2 },
+        { "tile": ["town", 17], "weight": 1 },
+        { "tile": ["town", 29], "weight": 1 },
+        { "tile": ["farm", 39], "weight": 1 },
+        { "tile": ["farm", 27], "weight": 1 },
+        { "tile": ["farm", 77], "weight": 0.5 },
+        { "tile": ["farm", 78], "weight": 0.5 },
+        { "tile": ["farm", 80], "weight": 0.5 },
+        { "preset": "autom tree", "weight": 2 },
+        { "preset": "tree", "weight": 3 },
+        { "preset": "big dry", "weight": 0.5 },
+        { "preset": "small dry", "weight": 0.5 },
+        { "preset": "sharptree", "weight": 2 }
+      ]
+    },
+    {
+      "name": "dirt",
+      "density": 1,
+      "noOverlap": true,
+      "emptyOnly": true,
+      "items": [
+        { "preset": "44dirt", "weight": 0.5 },
+        { "preset": "33dirt", "weight": 0.5 }
+      ]
+    }
+  ]
+}

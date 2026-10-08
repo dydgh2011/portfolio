@@ -36,7 +36,11 @@
     "comingSoon": "The game version is coming soon.",
     "fullResume": "Full details in the PDF resume",
     "skipToContent": "Skip to content",
-    "source": "Source code"
+    "source": "Source code",
+    "soon": "Coming soon",
+    "credits": "Credits",
+    "art": "Art",
+    "font": "Font"
   },
   "resume": {
     "backend": "Backend",

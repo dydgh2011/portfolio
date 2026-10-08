@@ -1,0 +1,151 @@
+---
+// One page section on the map (site/scenes/world.json, edit with /editor in dev):
+// its scene band (with the title) and its content zone (with the content).
+//
+// The zone stretches to its content: its repeat rows are tiled between the top and
+// bottom parts, and a small script rounds the height up to whole rows so tiles are
+// never cut. A section with no zone in the map still renders, just without scenery.
+//
+// Actors (knight, animals) live in bands, and are clipped to their band (see bandOfActor).
+//   walk:   from → to along `row`, then up `up` rows (negative = down), then fades out
+//   wander: back and forth between from and to, flipping when it turns
+//   path:   through points [[col, row, pause?], ...] at `speed` tiles/s, then starts over
+import { bandOfActor, layoutWorld, pathTimeline, PX } from '../../scripts/world.mjs';
+import { tileStyle, type TileRef } from '../lib/sprites';
+
+interface Actor {
+  sprite: TileRef;
+  type: 'walk' | 'wander' | 'path';
+  row: number;
+  from: number;
+  to: number;
+  up?: number;
+  duration: number;
+  points?: [number, number, number?][];
+  speed?: number;
+  delay?: number;
+  hero?: boolean;
+}
+interface World {
+  cols: number;
+  rows: number;
+  zones?: unknown[];
+  actors?: Actor[];
+}
+
+interface Props {
+  id: string; // zone id (about, projects, ..., footer) or "end" for the last band
+  as?: 'section' | 'footer' | 'div';
+  class?: string;
+  labelledby?: string;
+}
+
+const worlds = import.meta.glob<World>('../../scenes/world.json', { eager: true, import: 'default' });
+const images = import.meta.glob<string>('../assets/ui/world-*.png', { eager: true, query: '?url', import: 'default' });
+const img = (file: string) => images[`../assets/ui/${file}`];
+
+const { id, as: Tag = 'section', class: className, labelledby } = Astro.props;
+const world = worlds['../../scenes/world.json'];
+const layout = world ? layoutWorld(world) : null;
+const band = layout?.bands.find((b) => b.id === id && b.to >= b.from);
+const zone = layout?.zones.find((z) => z.id === id);
+const width = (world?.cols ?? 0) * PX;
+
+const bandImage = band && img(`world-band-${id}.png`);
+const bandRows = band ? band.to - band.from + 1 : 0;
+const actors = band && layout ? (world?.actors ?? []).filter((a) => bandOfActor(a, layout.bands) === band) : [];
+
+// Path actors get their own keyframes (positions in px inside the band).
+const r1 = (n: number) => Math.round(n * 1000) / 1000;
+const pathCss = actors
+  .map((a, i) => ({ a, i }))
+  .filter(({ a }) => a.type === 'path')
+  .map(({ a, i }) => {
+    const { total, frames } = pathTimeline(a.points, a.speed);
+    const at = (x: number, y: number, flip: boolean) =>
+      `transform:translate(${r1(x * PX)}px,${r1((y - band!.from) * PX)}px) scaleX(${flip ? -1 : 1})`;
+    const move = frames.map((f) => `${r1((f.t / total) * 100)}%{${at(f.x, f.y, f.flip)}}`).join('');
+    const fade = Math.min(10, (0.3 / total) * 100);
+    return `@keyframes path-${id}-${i}{${move}0%{opacity:0}${r1(fade)}%{opacity:1}${r1(100 - fade)}%{opacity:1}100%{opacity:0}}`;
+  })
+  .join('');
+const pathStart = (a: Actor) => {
+  const [x, y] = a.points?.[0] ?? [0, band?.from ?? 0];
+  return `transform:translate(${x * PX}px,${(y - (band?.from ?? 0)) * PX}px)`;
+};
+const pathTotal = (a: Actor) => pathTimeline(a.points, a.speed).total;
+
+const parts = zone && {
+  top: zone.repeatFrom - zone.from,
+  natural: zone.to - zone.from + 1,
+  images: [
+    zone.repeatFrom > zone.from && `url(${img(`world-zone-${id}-top.png`)}) center top / ${width}px auto no-repeat`,
+    zone.to > zone.repeatTo && `url(${img(`world-zone-${id}-bottom.png`)}) center bottom / ${width}px auto no-repeat`,
+    `url(${img(`world-zone-${id}-mid.png`)}) center ${(zone.repeatFrom - zone.from) * PX}px / ${width}px auto repeat-y`,
+  ].filter(Boolean),
+};
+const hasTitle = Astro.slots.has('title');
+---
+
+<Tag id={id === 'end' ? undefined : id} class:list={['world-section', className, { plain: !zone && id !== 'end' }]} aria-labelledby={labelledby}>
+  {
+    bandImage && (
+      <div class="band" style={`height:${bandRows * PX}px;background-image:url(${bandImage});background-size:${width}px auto`}>
+        <div class="band-map" style={`width:${width}px`} aria-hidden="true">
+          {pathCss && <style is:inline set:html={pathCss} />}
+          {actors.map((a, i) => (
+            a.type === 'path' ? (
+            <span
+              class:list={['actor', 'path', { hero: a.hero }]}
+              style={[
+                pathStart(a),
+                `animation-name:path-${id}-${i}`,
+                `animation-duration:${r1(pathTotal(a))}s`,
+                `animation-delay:${a.delay ?? 0}s`,
+              ].join(';')}
+            >
+              <span class="tile" style={`${tileStyle(a.sprite, 2)};width:${PX}px;height:${PX}px`} />
+            </span>
+            ) : (
+            <span
+              class:list={['actor', a.type, { hero: a.hero }]}
+              style={[
+                `--tile:${PX}px`,
+                `--row:${a.row - band!.from}`,
+                `--from:${a.from * PX}px`,
+                `--to:${a.to * PX}px`,
+                `--up:${(a.up ?? 0) * PX}px`,
+                `animation-duration:${a.duration}s`,
+                `animation-delay:${a.delay ?? 0}s`,
+              ].join(';')}
+            >
+              <span class="tile" style={`${tileStyle(a.sprite, 2)};width:${PX}px;height:${PX}px`} />
+            </span>
+            )
+          ))}
+        </div>
+        {hasTitle && (
+          <div class="wrap band-title">
+            <slot name="title" />
+          </div>
+        )}
+      </div>
+    )
+  }
+  {
+    id !== 'end' && (
+      <div
+        class="zone"
+        data-zone={parts ? '' : undefined}
+        data-px={PX}
+        data-natural={parts ? parts.natural * PX : undefined}
+        style={parts ? `min-height:${parts.natural * PX}px;background:${parts.images.join(',')}` : undefined}
+      >
+        <div class="wrap zone-content">
+          {hasTitle && !bandImage && <slot name="title" />}
+          <slot />
+        </div>
+      </div>
+    )
+  }
+</Tag>
