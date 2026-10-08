@@ -14,7 +14,20 @@
 // Lights (see LIGHT_TYPES in world.mjs) also live in bands: an optional sprite (flame frames
 // animate) drawn on the map, and a soft glow that only adds light (blend: screen). The glow
 // is not clipped to the band, so it spills softly over the zones next to it.
-import { bandOfActor, bandOfLight, layoutWorld, LIGHTS_SHEET_COLS, pathTimeline, PX, resolveLight } from '../../scripts/world.mjs';
+import {
+  bandOfActor,
+  bandOfFireflies,
+  bandOfLight,
+  FIREFLY_BLINK,
+  fireflyLifeKeys,
+  fireflyTracks,
+  layoutWorld,
+  LIGHTS_SHEET_COLS,
+  pathTimeline,
+  PX,
+  resolveFireflies,
+  resolveLight,
+} from '../../scripts/world.mjs';
 import lightSheet from '../assets/ui/lights.png?url';
 import { tileStyle, type TileRef } from '../lib/sprites';
 
@@ -36,6 +49,7 @@ interface World {
   rows: number;
   zones?: unknown[];
   actors?: Actor[];
+  fireflies?: Record<string, number | string>[];
   lights?: { type: string; col: number; row: number; color?: string; radius?: number; intensity?: number; flicker?: boolean | 'breathe' }[];
 }
 
@@ -44,13 +58,14 @@ interface Props {
   as?: 'section' | 'footer' | 'div';
   class?: string;
   labelledby?: string;
+  stop?: boolean; // a stop for keyboard jumps (Space / arrows, see Base.astro)
 }
 
 const worlds = import.meta.glob<World>('../../scenes/world.json', { eager: true, import: 'default' });
 const images = import.meta.glob<string>('../assets/ui/world-*.png', { eager: true, query: '?url', import: 'default' });
 const img = (file: string) => images[`../assets/ui/${file}`];
 
-const { id, as: Tag = 'section', class: className, labelledby } = Astro.props;
+const { id, as: Tag = 'section', class: className, labelledby, stop } = Astro.props;
 const world = worlds['../../scenes/world.json'];
 const layout = world ? layoutWorld(world) : null;
 const band = layout?.bands.find((b) => b.id === id && b.to >= b.from);
@@ -62,6 +77,23 @@ const bandRows = band ? band.to - band.from + 1 : 0;
 const actors = band && layout ? (world?.actors ?? []).filter((a) => bandOfActor(a, layout.bands) === band) : [];
 
 const lights = band && layout ? (world?.lights ?? []).filter((l) => bandOfLight(l, layout.bands) === band).map(resolveLight) : [];
+const r1 = (n: number) => Math.round(n * 1000) / 1000;
+
+// Fireflies: per firefly a loop (keyframes), a life cycle (per group) and a blink (shared).
+const fireflies = band && layout
+  ? (world?.fireflies ?? []).filter((g) => bandOfFireflies(g, layout.bands) === band).map((g) => ({ g: resolveFireflies(g), tracks: fireflyTracks(g), life: fireflyLifeKeys(g) }))
+  : [];
+const pct = (f: number) => `${r1(f * 100)}%`;
+const fireflyCss = fireflies
+  .map(({ tracks, life }, gi) => {
+    const lifeKf = `@keyframes ff-life-${id}-${gi}{${life.map(([f, o]) => `${pct(f)}{opacity:${r1(o)}}`).join('')}}`;
+    const paths = tracks.map((t, i) => {
+      const steps = t.points.map(([x, y], k) => `${pct(k / (t.points.length - 1))}{transform:translate(${r1(x * PX)}px,${r1((y - band!.from) * PX)}px)}`).join('');
+      return `@keyframes ff-path-${id}-${gi}-${i}{${steps}}`;
+    });
+    return lifeKf + paths.join('');
+  })
+  .join('') + (fireflies.length ? `@keyframes ff-blink{${FIREFLY_BLINK.map(([f, o]) => `${pct(f)}{opacity:${o}}`).join('')}}` : '');
 const sheetSize = `${LIGHTS_SHEET_COLS * PX}px ${2 * PX}px`;
 const frameAt = (index: number) => `-${(index % LIGHTS_SHEET_COLS) * PX}px -${Math.floor(index / LIGHTS_SHEET_COLS) * PX}px`;
 const rgba = (hex: string, a: number) => {
@@ -72,7 +104,6 @@ const rgba = (hex: string, a: number) => {
 const phase = (l: { col: number; row: number }) => -(((l.col * 7 + l.row * 13) % 17) / 10);
 
 // Path actors get their own keyframes (positions in px inside the band).
-const r1 = (n: number) => Math.round(n * 1000) / 1000;
 const pathCss = actors
   .map((a, i) => ({ a, i }))
   .filter(({ a }) => a.type === 'path')
@@ -105,7 +136,7 @@ const parts = zone && {
 const hasTitle = Astro.slots.has('title');
 ---
 
-<Tag id={id === 'end' ? undefined : id} class:list={['world-section', className, { plain: !zone && id !== 'end' }]} aria-labelledby={labelledby}>
+<Tag id={id === 'end' ? undefined : id} class:list={['world-section', className, { plain: !zone && id !== 'end' }]} aria-labelledby={labelledby} data-stop={stop ? '' : undefined}>
   {
     bandImage && (
       <div class="band" style={`height:calc(${bandRows} * var(--map-tile));background-image:url(${bandImage});background-size:calc(${world!.cols} * var(--map-tile)) auto`}>
@@ -164,8 +195,32 @@ const hasTitle = Astro.slots.has('title');
             ),
           ])}
         </div>
-        {lights.length > 0 && (
+        {(lights.length > 0 || fireflies.length > 0) && (
           <div class="band-lights" style={`width:${width}px;height:${bandRows * PX}px`} aria-hidden="true">
+            {fireflyCss && <style is:inline set:html={fireflyCss} />}
+            {fireflies.map(({ g, tracks }, gi) =>
+              tracks.map((t, i) => (
+                <span
+                  class="firefly"
+                  style={[
+                    `animation-name:ff-path-${id}-${gi}-${i},ff-life-${id}-${gi}`,
+                    `animation-duration:${r1(t.period)}s,${r1(t.cycle)}s`,
+                    `animation-delay:${r1(t.periodDelay)}s,${r1(t.cycleDelay)}s`,
+                  ].join(';')}
+                >
+                  <span
+                    class="ff-light"
+                    style={[
+                      `--ff-size:${r1(g.size * 2 * PX)}px`,
+                      `--ff-dot:${String(g.color)}`,
+                      `background:radial-gradient(circle closest-side,${rgba(String(g.color), Number(g.intensity))} 0%,${rgba(String(g.color), Number(g.intensity) * 0.5)} 25%,${rgba(String(g.color), 0)} 100%)`,
+                      `animation-duration:${r1(t.blink)}s`,
+                      `animation-delay:${r1(t.blinkDelay)}s`,
+                    ].join(';')}
+                  />
+                </span>
+              )),
+            )}
             {lights.map((l) => {
               const d = l.radius * 2 * PX;
               return (

@@ -10,7 +10,7 @@ import { readFileSync, writeFileSync } from 'node:fs';
 import { fileURLToPath } from 'node:url';
 import { buildUi } from '../scripts/build-ui.mjs';
 import { NAME, listScenes, readScene, writeScene } from '../scripts/scene-io.mjs';
-import { layoutWorld, LIGHT_TYPES } from '../scripts/world.mjs';
+import { FIREFLY_DEFAULTS, layoutWorld, LIGHT_TYPES } from '../scripts/world.mjs';
 
 function send(res, status, body) {
   res.statusCode = status;
@@ -51,6 +51,17 @@ function check(scene) {
         || (l.intensity !== undefined && !(l.intensity >= 0 && l.intensity <= 1))
         || (l.flicker !== undefined && ![true, false, 'breathe'].includes(l.flicker));
       if (bad) return `bad light ${JSON.stringify(l)}`;
+    }
+    if (scene.fireflies !== undefined && !Array.isArray(scene.fireflies)) return 'fireflies must be a list';
+    const num = (v, lo, hi) => v === undefined || (Number.isFinite(v) && v >= lo && v <= hi);
+    for (const g of scene.fireflies ?? []) {
+      const bad = !['col', 'row'].every((k) => Number.isInteger(g?.[k])) || !(Number.isInteger(g.w) && g.w > 0) || !(Number.isInteger(g.h) && g.h > 0)
+        || Object.keys(g).some((k) => !['col', 'row', 'w', 'h', ...Object.keys(FIREFLY_DEFAULTS)].includes(k))
+        || (g.color !== undefined && !/^#[0-9a-f]{3}([0-9a-f]{3})?$/i.test(g.color))
+        || !num(g.count, 0, 60) || !num(g.intensity, 0, 1) || !num(g.size, 0.1, 6) || !num(g.speed, 0.05, 10)
+        || !num(g.blink, 0.3, 30) || !num(g.blinkJitter, 0, 0.9) || !num(g.life, 0.5, 120) || !num(g.rest, 0, 120)
+        || !num(g.lifeJitter, 0, 0.9) || !num(g.seed, 0, 1e9);
+      if (bad) return `bad firefly group ${JSON.stringify(g)}`;
     }
   }
   return null;

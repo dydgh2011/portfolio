@@ -147,3 +147,127 @@ export function resolveLight(light) {
 export function bandOfLight(light, bands) {
   return bands.find((b) => b.to >= b.from && light.row >= b.from && light.row <= b.to);
 }
+
+// ---------- fireflies ----------
+//
+// A group of fireflies wanders inside an area (in tiles) of a band:
+//   fireflies: [{ col, row, w, h, count?, color?, intensity?, size?, speed?,
+//                 blink?, blinkJitter?, life?, rest?, lifeJitter?, seed? }, ...]
+// Each one follows its own smooth loop (from `seed`, so the site and the editor agree),
+// blinks every `blink` s (± blinkJitter, a fraction), shows for `life` s and hides for
+// `rest` s (both ± lifeJitter). Periods differ per firefly, so each time one comes back
+// it is somewhere else on its loop.
+export const FIREFLY_DEFAULTS = {
+  count: 8,
+  color: '#d4ff6b',
+  intensity: 0.8,
+  size: 0.7, // glow radius, tiles
+  speed: 0.5, // tiles per second
+  blink: 2.4, // seconds
+  blinkJitter: 0.4,
+  life: 7, // seconds shown
+  rest: 4, // seconds hidden
+  lifeJitter: 0.3,
+  seed: 1,
+};
+export const FIREFLY_FADE = 0.8; // seconds to fade in or out
+// Opacity over one blink: mostly a dim glow, then a short flash.
+export const FIREFLY_BLINK = [[0, 0.4], [0.45, 0.4], [0.58, 1], [0.72, 0.4], [1, 0.4]];
+const FIREFLY_SAMPLES = 32;
+
+export function resolveFireflies(group) {
+  const out = { ...FIREFLY_DEFAULTS };
+  for (const [k, v] of Object.entries(group ?? {})) if (v !== undefined) out[k] = v;
+  return out;
+}
+
+/** The band a firefly group belongs to (by the row of its area's middle), or undefined. */
+export function bandOfFireflies(group, bands) {
+  return bandOfLight({ row: Math.floor(group.row + (group.h ?? 1) / 2) }, bands);
+}
+
+// Small seeded random numbers (mulberry32).
+function random(seed) {
+  let a = seed >>> 0;
+  return () => {
+    a = (a + 0x6d2b79f5) >>> 0;
+    let t = Math.imul(a ^ (a >>> 15), 1 | a);
+    t = (t + Math.imul(t ^ (t >>> 7), 61 | t)) ^ t;
+    return ((t ^ (t >>> 14)) >>> 0) / 4294967296;
+  };
+}
+
+/** Opacity of a fade-in, stay, fade-out cycle: [fraction, opacity] stops for one cycle. */
+export function fireflyLifeKeys(group) {
+  const g = resolveFireflies(group);
+  const cycle = g.life + g.rest;
+  const fade = Math.min(FIREFLY_FADE, g.life / 2) / cycle;
+  const shown = g.life / cycle;
+  return [[0, 0], [fade, 1], [shown - fade, 1], [shown, 0], [1, 0]];
+}
+
+/**
+ * Every firefly of a group: its loop (points in tiles, evenly timed, closed), and the
+ * periods and starting offsets (seconds, ≤ 0) of its loop, blink and life cycle.
+ */
+export function fireflyTracks(group) {
+  const g = resolveFireflies(group);
+  const rand = random(g.seed * 7919 + 17);
+  const around = (v, j) => v * (1 + (rand() * 2 - 1) * j);
+  const tracks = [];
+  for (let n = 0; n < Math.max(0, Math.min(60, g.count)); n++) {
+    // x and y are each two sine waves with whole-number frequencies, so the loop closes.
+    const wave = (half) => {
+      const amp = half * (0.45 + rand() * 0.55);
+      const k1 = 1 + Math.floor(rand() * 2);
+      const k2 = k1 + 1 + Math.floor(rand() * 2);
+      const p1 = rand() * Math.PI * 2;
+      const p2 = rand() * Math.PI * 2;
+      const mix = 0.55 + rand() * 0.25;
+      return { amp, at: (t) => amp * (mix * Math.sin(2 * Math.PI * k1 * t + p1) + (1 - mix) * Math.sin(2 * Math.PI * k2 * t + p2)) };
+    };
+    const wx = wave(g.w / 2);
+    const wy = wave(g.h / 2);
+    const cx = g.col + wx.amp + rand() * Math.max(0, g.w - 2 * wx.amp);
+    const cy = g.row + wy.amp + rand() * Math.max(0, g.h - 2 * wy.amp);
+    const points = [];
+    for (let i = 0; i <= FIREFLY_SAMPLES; i++) {
+      const t = i / FIREFLY_SAMPLES;
+      points.push([cx + wx.at(t), cy + wy.at(t)]);
+    }
+    let length = 0;
+    for (let i = 1; i < points.length; i++) length += Math.hypot(points[i][0] - points[i - 1][0], points[i][1] - points[i - 1][1]);
+    const period = Math.max(2, length / Math.max(0.05, around(g.speed, 0.25)));
+    const blink = Math.max(0.3, around(g.blink, g.blinkJitter));
+    const cycle = Math.max(1, around(g.life + g.rest, g.lifeJitter));
+    tracks.push({
+      points,
+      period,
+      periodDelay: -rand() * period,
+      blink,
+      blinkDelay: -rand() * blink,
+      cycle,
+      cycleDelay: -rand() * cycle,
+    });
+  }
+  return tracks;
+}
+
+// Linear interpolation through [fraction, value] stops.
+function keysAt(keys, f) {
+  const i = keys.findIndex((k) => k[0] >= f);
+  if (i <= 0) return keys[Math.max(0, i)][1];
+  const [a, b] = [keys[i - 1], keys[i]];
+  return a[1] + ((b[1] - a[1]) * (f - a[0])) / (b[0] - a[0] || 1);
+}
+
+/** Where a firefly is and how bright (0–1) at time `s` seconds, for previews. */
+export function fireflyAt(track, lifeKeys, s) {
+  const frac = (period, delay) => ((((s - delay) % period) + period) % period) / period;
+  const p = frac(track.period, track.periodDelay) * FIREFLY_SAMPLES;
+  const i = Math.min(FIREFLY_SAMPLES - 1, Math.floor(p));
+  const [a, b] = [track.points[i], track.points[i + 1]];
+  const k = p - i;
+  const alpha = keysAt(FIREFLY_BLINK, frac(track.blink, track.blinkDelay)) * keysAt(lifeKeys, frac(track.cycle, track.cycleDelay));
+  return { x: a[0] + (b[0] - a[0]) * k, y: a[1] + (b[1] - a[1]) * k, alpha };
+}

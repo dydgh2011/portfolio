@@ -131,6 +131,82 @@ h3,
 .button:hover {
   transform: translateY(-2px);
 }
+/* "Coming soon" buttons look switched off but can still be pressed (they explain why). */
+.button.soon {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  cursor: pointer;
+  filter: grayscale(1) brightness(0.85);
+}
+.button.soon:hover {
+  filter: grayscale(0.6) brightness(0.95);
+}
+
+/* "Under construction" dialog for the game button (ResumePage.astro). */
+.construction {
+  width: min(420px, calc(100vw - 32px));
+  margin: auto;
+  background: transparent; /* the panel border-image fills it */
+  text-align: center;
+  color: var(--ink);
+}
+.construction::backdrop {
+  background: rgba(14, 11, 28, 0.72);
+}
+html:has(.construction[open]) {
+  overflow: hidden; /* no scrolling the page behind it */
+}
+.construction-art {
+  display: flex;
+  justify-content: center;
+  align-items: flex-end;
+  gap: 12px;
+  margin: 4px 0 12px;
+}
+.construction-art .flip {
+  transform: scaleX(-1);
+}
+.construction-art .barricade {
+  position: relative;
+  display: block;
+  line-height: 0;
+}
+/* the barricade's two warning lamps take turns lighting up */
+.construction-art .lamp {
+  position: absolute;
+  top: 20px;
+  width: 36px;
+  height: 36px;
+  margin: -18px 0 0 -18px;
+  border-radius: 50%;
+  background: radial-gradient(circle closest-side, rgba(255, 112, 109, 0.9), rgba(232, 69, 55, 0.35) 45%, rgba(232, 69, 55, 0) 100%);
+  mix-blend-mode: screen;
+  animation: lamp 1s steps(1) infinite;
+}
+.construction-art .lamp + .lamp {
+  animation-delay: -0.5s;
+}
+@keyframes lamp {
+  50% { opacity: 0; }
+}
+.construction h2 {
+  margin: 0;
+  font-family: var(--font-pixel);
+  font-size: 24px;
+}
+.construction p {
+  margin: 10px 0 0;
+}
+.construction .note {
+  margin-top: 4px;
+  color: var(--muted);
+  font-size: 14px;
+}
+.construction form {
+  margin-top: 18px;
+}
+
 .button:disabled {
   display: inline-flex;
   align-items: center;
@@ -282,7 +358,40 @@ h3,
 .glow {
   position: absolute;
   border-radius: 50%;
+}
+/* The light layer is one group that only adds light. (The blend sits on the layer, not on
+   each glow: the layer's transform makes it an isolated group, so a blend inside it would
+   only mix the glows with each other.) */
+.band-lights {
   mix-blend-mode: screen;
+}
+/* Fireflies (world.json "fireflies"): .firefly moves along its loop and fades in and out
+   with its life cycle; .ff-light is the soft glow with a 2-art-pixel dot, and blinks. */
+.firefly {
+  position: absolute;
+  top: 0;
+  left: 0;
+  animation-timing-function: linear;
+  animation-iteration-count: infinite;
+  opacity: 0;
+}
+.ff-light {
+  position: absolute;
+  left: calc(var(--ff-size) / -2);
+  top: calc(var(--ff-size) / -2);
+  width: var(--ff-size);
+  height: var(--ff-size);
+  border-radius: 50%;
+  animation: ff-blink 2s linear infinite;
+}
+.ff-light::after {
+  content: '';
+  position: absolute;
+  left: calc(50% - 2px);
+  top: calc(50% - 2px);
+  width: 4px;
+  height: 4px;
+  background: color-mix(in srgb, var(--ff-dot) 45%, #fff); /* the bright core */
 }
 .glow.flicker {
   animation: flicker 2.3s linear infinite;
@@ -795,8 +904,12 @@ h3,
   .actor .tile,
   .light-sprite,
   .glow,
-  .moon-glow {
+  .moon-glow,
+  .construction-art .lamp {
     animation: none !important;
+  }
+  .firefly {
+    display: none;
   }
   .actor {
     transform: translateX(var(--from));

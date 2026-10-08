@@ -5,6 +5,8 @@ import SkillChip from './SkillChip.astro';
 import SkillChips from './SkillChips.astro';
 import WorldSection from './WorldSection.astro';
 import moon from '../assets/moon.svg';
+import barricade from '../../../assets/custom/barricade.png';
+import cone from '../../../assets/custom/cone.png';
 import rock from '../assets/ui/rock.png';
 import Tile from './Tile.astro';
 import Flag from './Flag.astro';
@@ -42,7 +44,7 @@ const horizonStyle = `--horizon-w:calc(${horizon.cols} * var(--map-tile));--hori
     </div>
   </nav>
 
-  <header class="site-header" style={horizonStyle}>
+  <header class="site-header" style={horizonStyle} data-stop>
     <span class="moon-glow" aria-hidden="true"></span>
     <img class="moon" src={moon.src} alt="" width="20" height="20" />
     <div class="wrap">
@@ -89,7 +91,7 @@ const horizonStyle = `--horizon-w:calc(${horizon.cols} * var(--map-tile));--hori
               {ui.nav.play}
             </a>
           ) : (
-            <button class="button play" type="button" disabled>
+            <button class="button play soon" type="button" aria-haspopup="dialog" data-open="construction">
               <Tile tile={['town', 117]} scale={1} />
               {ui.nav.play} · {ui.labels.soon}
             </button>
@@ -102,14 +104,14 @@ const horizonStyle = `--horizon-w:calc(${horizon.cols} * var(--map-tile));--hori
 
   <div class="world">
   <main id="main">
-    <WorldSection id="about" class="about" labelledby="about-title">
+    <WorldSection id="about" class="about" labelledby="about-title" stop>
       <h2 slot="title" id="about-title" class="section-title"><Tile tile={sectionIcons.about} />{ui.nav.about}</h2>
       <div class="panel">
         <p>{profile.about}</p>
       </div>
     </WorldSection>
 
-    <WorldSection id="projects" labelledby="projects-title">
+    <WorldSection id="projects" labelledby="projects-title" stop>
       <h2 slot="title" id="projects-title" class="section-title"><Tile tile={sectionIcons.projects} />{ui.nav.projects}</h2>
       <div class="entries">
         {
@@ -141,7 +143,7 @@ const horizonStyle = `--horizon-w:calc(${horizon.cols} * var(--map-tile));--hori
       </div>
     </WorldSection>
 
-    <WorldSection id="experience" labelledby="experience-title">
+    <WorldSection id="experience" labelledby="experience-title" stop>
       <h2 slot="title" id="experience-title" class="section-title"><Tile tile={sectionIcons.experience} />{ui.nav.experience}</h2>
       <div class="entries">
         {
@@ -170,7 +172,7 @@ const horizonStyle = `--horizon-w:calc(${horizon.cols} * var(--map-tile));--hori
       </div>
     </WorldSection>
 
-    <WorldSection id="skills" labelledby="skills-title">
+    <WorldSection id="skills" labelledby="skills-title" stop>
       <h2 slot="title" id="skills-title" class="section-title"><Tile tile={sectionIcons.skills} />{ui.nav.skills}</h2>
       <div class="panel skill-groups">
         {
@@ -193,7 +195,7 @@ const horizonStyle = `--horizon-w:calc(${horizon.cols} * var(--map-tile));--hori
       </div>
     </WorldSection>
 
-    <WorldSection id="education" labelledby="education-title">
+    <WorldSection id="education" labelledby="education-title" stop>
       <h2 slot="title" id="education-title" class="section-title"><Tile tile={sectionIcons.education} />{ui.nav.education}</h2>
       <div class="entries">
         {
@@ -221,7 +223,7 @@ const horizonStyle = `--horizon-w:calc(${horizon.cols} * var(--map-tile));--hori
     </WorldSection>
   </main>
 
-  <WorldSection id="footer" as="footer" class="site-footer">
+  <WorldSection id="footer" as="footer" class="site-footer" stop>
       <div class="plate">
         {profile.resumes.length > 0 && <p>{ui.labels.fullResume}</p>}
         {!playable && <p class="game-note"><Tile tile={['dungeon', 108]} />{ui.labels.comingSoon}</p>}
@@ -237,7 +239,40 @@ const horizonStyle = `--horizon-w:calc(${horizon.cols} * var(--map-tile));--hori
   <div class="page-end" style={`background-image:url(${rock.src})`} aria-hidden="true"></div>
   </div>
 
+  {
+    !playable && (
+      <dialog id="construction" class="panel construction" aria-labelledby="construction-title">
+        <div class="construction-art" aria-hidden="true">
+          <img src={cone.src} width="48" height="48" alt="" />
+          <span class="barricade">
+            <img src={barricade.src} width="128" height="128" alt="" />
+            <span class="lamp" style="left:28px" />
+            <span class="lamp" style="left:104px" />
+          </span>
+          <img class="flip" src={cone.src} width="48" height="48" alt="" />
+        </div>
+        <h2 id="construction-title">{ui.construction.title}</h2>
+        <p>{ui.construction.text}</p>
+        <p class="note">{ui.construction.note}</p>
+        <form method="dialog">
+          <button class="button" autofocus>{ui.construction.close}</button>
+        </form>
+      </dialog>
+    )
+  }
+
   <script>
+    // Game button (until the game exists): show the "under construction" dialog.
+    // Esc and the OK button close it (native <dialog>); so does a click on the backdrop.
+    const dialog = document.getElementById('construction') as HTMLDialogElement | null;
+    document.querySelector('[data-open="construction"]')?.addEventListener('click', () => dialog?.showModal());
+    dialog?.addEventListener('click', (e) => {
+      // The backdrop counts as the dialog itself, and so does its padding: close only outside the box.
+      const r = dialog.getBoundingClientRect();
+      const outside = e.clientX < r.left || e.clientX > r.right || e.clientY < r.top || e.clientY > r.bottom;
+      if (e.target === dialog && outside) dialog.close();
+    });
+
     // Round each content zone up to whole map rows, so its repeated rows are never cut.
     // A row is 32 px × --map-s (see Base.astro), so this reruns when the window resizes.
     const zones = document.querySelectorAll<HTMLElement>('[data-zone]');

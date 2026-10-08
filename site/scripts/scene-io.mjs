@@ -35,8 +35,8 @@ export function formatScene(scene) {
     JSON.stringify(scene, null, 2)
       .replace(/\[\s+(-?[\d.]+),\s+(-?[\d.]+),\s+("\w+"),\s+(\d+)\s+\]/g, '[$1, $2, $3, $4]')
       .replace(/"sprite": \[\s+("\w+"),\s+(\d+)\s+\]/g, '"sprite": [$1, $2]')
-      // one light per line
-      .replace(/\{\s+("type": [^{}[\]]*?)\s+\}/g, (_, body) => `{ ${body.replace(/,\s+/g, ', ')} }`) + '\n'
+      // one light or firefly group per line
+      .replace(/\{\s+("(?:type|col)": [^{}[\]]*?)\s+\}/g, (_, body) => `{ ${body.replace(/,\s+/g, ', ')} }`) + '\n'
   );
 }
 

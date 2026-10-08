@@ -1,5 +1,20 @@
 // Map editor client. Edits site/scenes/*.json through the dev API in integration.mjs.
-import { bandOfActor, bandOfLight, layoutWorld, LIGHT_TYPES, LIGHTS_SHEET_COLS, pathAt, resolveLight, ZONE_IDS } from '../scripts/world.mjs';
+import {
+  bandOfActor,
+  bandOfFireflies,
+  bandOfLight,
+  FIREFLY_DEFAULTS,
+  fireflyAt,
+  fireflyLifeKeys,
+  fireflyTracks,
+  layoutWorld,
+  LIGHT_TYPES,
+  LIGHTS_SHEET_COLS,
+  pathAt,
+  resolveFireflies,
+  resolveLight,
+  ZONE_IDS,
+} from '../scripts/world.mjs';
 // The map is drawn the same way scripts/build-ui.mjs bakes it: layers in order,
 // 16 px tiles from the packed tilemaps, then the dusk tint.
 
@@ -44,6 +59,25 @@ interface Light {
   intensity?: number; // 0–1
   flicker?: boolean | 'breathe';
 }
+// See FIREFLY_DEFAULTS in world.mjs for the optional settings.
+interface FireflyGroup {
+  col: number;
+  row: number;
+  w: number;
+  h: number;
+  count?: number;
+  color?: string;
+  intensity?: number;
+  size?: number;
+  speed?: number;
+  blink?: number;
+  blinkJitter?: number;
+  life?: number;
+  rest?: number;
+  lifeJitter?: number;
+  seed?: number;
+}
+type FireflyKey = keyof typeof FIREFLY_DEFAULTS;
 interface Zone {
   id: string;
   from: number;
@@ -60,6 +94,7 @@ interface Scene {
   layers: Layer[];
   actors?: Actor[];
   lights?: Light[];
+  fireflies?: FireflyGroup[];
 }
 type Tool = 'paint' | 'erase' | 'rect' | 'patch' | 'pick' | 'select' | 'stamp' | 'scatter' | 'zone';
 type Slot = [Pack, number] | null;
@@ -177,6 +212,7 @@ let dusk = true;
 let playActors = true;
 let selectedActor = -1;
 let selectedLight = -1;
+let selectedFirefly = -1;
 let placingLight: number | 'new' | null = null; // the next map click places this light
 let newLightType = 'torch';
 const lightSheets = {} as { raw: HTMLImageElement; dusk: HTMLImageElement };
@@ -384,6 +420,7 @@ function drawLights(time: number) {
     if (l.below !== undefined) spriteAt(l.below, l.col, l.row + 1);
   }
   mctx.globalCompositeOperation = 'screen';
+  drawFireflies(time);
   for (const l of lights) {
     let [alpha, scale] = [1, 1];
     if (playActors && l.flicker === true) [alpha, scale] = flickerAt((((time / 1000 + phase(l)) % 2.3) + 2.3) % 2.3 / 2.3);
@@ -403,6 +440,7 @@ function drawLights(time: number) {
     mctx.fillRect(x - rad, y - rad, rad * 2, rad * 2);
   }
   mctx.globalCompositeOperation = 'source-over';
+  drawFireflyAreas();
   // With the Lights tab open, every light gets a faint box so they are easy to find.
   if (palettePack === 'lights') {
     mctx.strokeStyle = 'rgba(245,213,71,0.45)';
@@ -434,6 +472,65 @@ function drawLights(time: number) {
     mctx.fillStyle = '#1b1830';
     mctx.fillText(label, lx + 4, ly + 11);
   }
+}
+
+// Fireflies as on the site (same loops from world.mjs); tracks are cached per group settings.
+const fireflyCache = new Map<string, { tracks: ReturnType<typeof fireflyTracks>; life: ReturnType<typeof fireflyLifeKeys> }>();
+function fireflyData(g: FireflyGroup) {
+  const key = JSON.stringify(g);
+  let d = fireflyCache.get(key);
+  if (!d) {
+    if (fireflyCache.size > 200) fireflyCache.clear();
+    d = { tracks: fireflyTracks(g), life: fireflyLifeKeys(g) };
+    fireflyCache.set(key, d);
+  }
+  return d;
+}
+function drawFireflies(time: number) {
+  const S = T * zoom;
+  const s = playActors ? time / 1000 : 0;
+  for (const g of scene.fireflies ?? []) {
+    const r = resolveFireflies(g);
+    const [cr, cg, cb] = hexRgb(r.color);
+    const { tracks, life } = fireflyData(g);
+    for (const t of tracks) {
+      const p = fireflyAt(t, life, s);
+      const a = playActors ? p.alpha : 0.6;
+      if (a <= 0.01) continue;
+      const x = p.x * S, y = p.y * S, rad = r.size * S;
+      const grad = mctx.createRadialGradient(x, y, 0, x, y, rad);
+      grad.addColorStop(0, `rgba(${cr},${cg},${cb},${r.intensity * a})`);
+      grad.addColorStop(0.25, `rgba(${cr},${cg},${cb},${r.intensity * a * 0.5})`);
+      grad.addColorStop(1, `rgba(${cr},${cg},${cb},0)`);
+      mctx.fillStyle = grad;
+      mctx.fillRect(x - rad, y - rad, rad * 2, rad * 2);
+      const dot = Math.max(1, (4 / 32) * S); // 2 art pixels
+      const core = (c: number) => Math.round(c * 0.45 + 255 * 0.55); // like the site's color-mix
+      mctx.fillStyle = `rgba(${core(cr)},${core(cg)},${core(cb)},${a})`;
+      mctx.fillRect(x - dot / 2, y - dot / 2, dot, dot);
+    }
+  }
+}
+function drawFireflyAreas() {
+  const S = T * zoom;
+  (scene.fireflies ?? []).forEach((g, i) => {
+    const sel = i === selectedFirefly;
+    if (!sel && palettePack !== 'lights') return;
+    mctx.strokeStyle = sel ? '#b6ff6b' : 'rgba(182,255,107,0.45)';
+    mctx.lineWidth = sel ? 2 : 1;
+    mctx.setLineDash(sel ? [6, 4] : [3, 3]);
+    mctx.strokeRect(g.col * S + 1, g.row * S + 1, g.w * S - 2, g.h * S - 2);
+    mctx.setLineDash([]);
+    if (sel) {
+      const label = `fireflies #${i + 1}`;
+      mctx.font = 'bold 11px system-ui';
+      const w = mctx.measureText(label).width + 8;
+      mctx.fillStyle = '#b6ff6b';
+      mctx.fillRect(g.col * S, g.row * S - 16, w, 15);
+      mctx.fillStyle = '#1b1830';
+      mctx.fillText(label, g.col * S + 4, g.row * S - 5);
+    }
+  });
 }
 
 // Select a light: highlight it in the list and on the map, and bring both into view.
@@ -637,6 +734,9 @@ function worldProblems(): string[] {
   (scene.lights ?? []).forEach((l, i) => {
     if (!bandOfLight(l, bands)) out.push(`light ${i + 1} (${l.type}) is in a zone; lights go in bands (between zones)`);
   });
+  (scene.fireflies ?? []).forEach((g, i) => {
+    if (!bandOfFireflies(g, bands)) out.push(`fireflies ${i + 1}: the middle of the area is in a zone; put the area in a band (between zones)`);
+  });
   return out;
 }
 
@@ -709,6 +809,7 @@ function insertRows(at: number, n: number) {
   for (const z of scene.zones ?? []) for (const k of ['from', 'to', 'repeatFrom', 'repeatTo'] as const) if (z[k] >= at) z[k] += n;
   for (const a of scene.actors ?? []) if (a.row >= at) a.row += n;
   for (const l of scene.lights ?? []) if (l.row >= at) l.row += n;
+  for (const g of scene.fireflies ?? []) if (g.row >= at) g.row += n;
   scene.rows += n;
 }
 
@@ -732,6 +833,10 @@ function deleteRows(a: number, b: number) {
   if (scene.lights) {
     scene.lights = scene.lights.filter((x) => x.row < a || x.row > b);
     for (const x of scene.lights) if (x.row > b) x.row -= n;
+  }
+  if (scene.fireflies) {
+    scene.fireflies = scene.fireflies.filter((x) => x.row < a || x.row > b);
+    for (const x of scene.fireflies) if (x.row > b) x.row -= n;
   }
   scene.rows -= n;
 }
@@ -1972,7 +2077,8 @@ function renderActors() {
         markDirty();
       });
     });
-    li.querySelectorAll<HTMLButtonElement>('[data-act]').forEach((b) =>
+    // Only the sprite and delete buttons: "points" and "add-point" have their own handlers above.
+    li.querySelectorAll<HTMLButtonElement>('[data-act="sprite"], [data-act="del"]').forEach((b) =>
       b.addEventListener('click', () => {
         snapshot();
         if (b.dataset.act === 'sprite') a.sprite = [...selected];
@@ -2076,6 +2182,120 @@ $<HTMLSelectElement>('new-light-type').innerHTML = lightTypeOptions();
 $<HTMLSelectElement>('new-light-type').addEventListener('change', (e) => (newLightType = (e.target as HTMLSelectElement).value));
 $('add-light').addEventListener('click', () => startPlacingLight(newLightType));
 
+// ---------- fireflies panel ----------
+
+// [key, label, step, min, max, title]
+const FIREFLY_FIELDS: [FireflyKey, string, number, number, number, string][] = [
+  ['count', 'count', 1, 0, 60, 'How many fireflies in the group'],
+  ['intensity', 'power', 0.05, 0, 1, 'Glow strength, 0–1'],
+  ['size', 'size', 0.1, 0.1, 6, 'Glow radius in tiles'],
+  ['speed', 'speed', 0.05, 0.05, 10, 'Tiles per second (each one ± 25%)'],
+  ['blink', 'blink s', 0.1, 0.3, 30, 'Seconds between flashes'],
+  ['blinkJitter', 'blink ±', 0.05, 0, 0.9, 'Random difference per firefly, as a fraction (0.4 = ±40%)'],
+  ['life', 'shown s', 0.5, 0.5, 120, 'Seconds a firefly stays before fading out'],
+  ['rest', 'hidden s', 0.5, 0, 120, 'Seconds it stays away before coming back (how often they appear)'],
+  ['lifeJitter', 'shown/hidden ±', 0.05, 0, 0.9, 'Random difference per firefly, as a fraction'],
+];
+
+function renderFireflies() {
+  $('fireflies-panel').classList.toggle('hidden', scene.kind !== 'world');
+  const list = $('fireflies');
+  list.innerHTML = '';
+  (scene.fireflies ?? []).forEach((g, i) => {
+    const r = resolveFireflies(g);
+    const li = document.createElement('li');
+    li.className = i === selectedFirefly ? 'selected' : '';
+    li.innerHTML = `
+      <div class="row">
+        <strong>#${i + 1}</strong>
+        <span class="muted">${g.col},${g.row} · ${g.w}×${g.h}</span>
+        <button data-act="area" title="Use the area selected with the Select tool">From selection</button>
+        <span class="spacer"></span>
+        <button data-act="del" class="danger" title="Delete group">✕</button>
+      </div>
+      <div class="row ff-fields">
+        <input type="color" data-k="color" title="Color" />
+        ${FIREFLY_FIELDS.map(([k, label, step, min, max, title]) => `<label title="${title}">${label} <input type="number" data-k="${k}" step="${step}" min="${min}" max="${max}" /></label>`).join('')}
+      </div>
+      <div class="row">
+        <button data-act="seed" title="New random paths and timings">New paths</button>
+        <button data-act="reset" title="Back to the default settings (keeps the area)">defaults</button>
+      </div>`;
+    li.querySelectorAll<HTMLInputElement>('[data-k]').forEach((input) => {
+      const k = input.dataset.k as FireflyKey;
+      const v = r[k];
+      input.value = k === 'color' && typeof v === 'string' && v.length === 4 ? v.replace(/\w/g, (c) => c + c) : String(v);
+      input.addEventListener('change', () => {
+        snapshot();
+        if (k === 'color') {
+          if (input.value.toLowerCase() === FIREFLY_DEFAULTS.color) delete g.color;
+          else g.color = input.value;
+        } else {
+          const n = Number(input.value);
+          if (Number.isNaN(n)) return;
+          const f = FIREFLY_FIELDS.find((x) => x[0] === k)!;
+          let v = Math.min(f[4], Math.max(f[3], n));
+          if (k === 'count') v = Math.round(v);
+          if (v === FIREFLY_DEFAULTS[k]) delete g[k];
+          else (g as unknown as Record<string, number>)[k] = v;
+        }
+        renderFireflies();
+        markDirty();
+      });
+    });
+    li.addEventListener('mousedown', () => {
+      if (selectedFirefly !== i) {
+        selectedFirefly = i;
+        list.querySelectorAll('li').forEach((x, j) => x.classList.toggle('selected', j === i));
+      }
+    });
+    li.querySelectorAll<HTMLButtonElement>('[data-act]').forEach((b) =>
+      b.addEventListener('click', () => {
+        if (b.dataset.act === 'area' && !selection) return status('Select an area with the Select tool first', 'error');
+        snapshot();
+        if (b.dataset.act === 'area') Object.assign(g, rectToArea(selection!));
+        else if (b.dataset.act === 'seed') g.seed = Math.floor(Math.random() * 1e6);
+        else if (b.dataset.act === 'reset') for (const k of Object.keys(FIREFLY_DEFAULTS) as FireflyKey[]) delete g[k];
+        else {
+          scene.fireflies!.splice(i, 1);
+          selectedFirefly = -1;
+        }
+        renderFireflies();
+        markDirty();
+      }),
+    );
+    list.appendChild(li);
+  });
+}
+
+const rectToArea = (r: Rect) => ({
+  col: Math.min(r.c0, r.c1),
+  row: Math.min(r.r0, r.r1),
+  w: Math.abs(r.c1 - r.c0) + 1,
+  h: Math.abs(r.r1 - r.r0) + 1,
+});
+
+$('add-fireflies').addEventListener('click', () => {
+  snapshot();
+  scene.fireflies ??= [];
+  // The selected area, or a 12 × 4 area in the middle of what is on screen.
+  let area;
+  if (selection) area = rectToArea(selection);
+  else {
+    const main = document.querySelector('main')!;
+    const S = T * zoom;
+    const mapTop = map.getBoundingClientRect().top - main.getBoundingClientRect().top + main.scrollTop;
+    const mid = main.scrollTop + main.clientHeight / 2 - mapTop;
+    const row = Math.max(0, Math.min(scene.rows - 4, Math.round(mid / S) - 2));
+    area = { col: Math.round(scene.cols / 2) - 6, row, w: 12, h: 4 };
+  }
+  scene.fireflies.push({ ...area, seed: Math.floor(Math.random() * 1e6) });
+  selectedFirefly = scene.fireflies.length - 1;
+  renderFireflies();
+  markDirty();
+  status(`Added fireflies at ${area.col},${area.row} (${area.w}×${area.h}) · move the area with Select + "From selection"`, 'dirty');
+});
+
 // ---------- scene panel ----------
 
 function loadScene(n: string) {
@@ -2089,6 +2309,7 @@ function loadScene(n: string) {
   hidden = new Set();
   selectedActor = -1;
   selectedLight = -1;
+  selectedFirefly = -1;
   placingLight = null;
   selection = null;
   undoStack.length = 0;
@@ -2105,6 +2326,7 @@ function loadScene(n: string) {
   renderLayers();
   renderActors();
   renderLights();
+  renderFireflies();
   renderZones();
   status(`Loaded scenes/${n}.json`);
   history.replaceState(null, '', `#${n}`);
@@ -2205,6 +2427,7 @@ function afterHistory() {
   renderLayers();
   renderActors();
   renderLights();
+  renderFireflies();
   renderZones();
   markDirty();
 }

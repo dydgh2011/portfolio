@@ -583,6 +583,16 @@ const api = `${import.meta.env.BASE_URL.replace(/\/$/, '')}/__scenes`;
         </div>
         <span class="muted">Glows only add light; fires flicker. Put a light on the tile its object stands on.</span>
       </div>
+
+      <div id="fireflies-panel">
+        <h2>Fireflies</h2>
+        <ul class="actors" id="fireflies"></ul>
+        <div class="row">
+          <button id="add-fireflies">Add group</button>
+          <span class="muted">Uses the Select tool's area, if any.</span>
+        </div>
+        <span class="muted">Each wanders its own smooth loop, blinks, fades out after "shown s" and comes back after "hidden s". ± = random difference per firefly.</span>
+      </div>
     </aside>
 
     <footer>

@@ -42,6 +42,12 @@
     "art": "Art",
     "font": "Font"
   },
+  "construction": {
+    "title": "Under construction!",
+    "text": "The game version is still being built.",
+    "note": "When it's ready, this button will take you right into it.",
+    "close": "OK"
+  },
   "resume": {
     "backend": "Backend",
     "ai": "AI"
