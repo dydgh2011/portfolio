@@ -6,7 +6,7 @@
     "education": "Education",
     "skills": "Skills",
     "play": "Play the game",
-    "resume": "Download resume",
+    "resume": "Download Resume",
     "language": "Language"
   },
   "categories": {
@@ -41,6 +41,9 @@
     "credits": "Credits",
     "art": "Art",
     "font": "Font"
+,
+    "copy": "Copy",
+    "copied": "Copied!"
   },
   "construction": {
     "title": "Under construction!",

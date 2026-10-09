@@ -17,6 +17,7 @@ The resume site (`site/`, Astro) shows the resume as one long pixel-art RPG map 
 - **Panels and buttons** are 9-slice tiles (Kenney Fantasy UI Borders) drawn with CSS `border-image`. The sprites are white; `site/scripts/build-ui.mjs` tints them to the site palette before `dev`/`build` (change the sprite or color there).
 - **The sky** (nav + header) is plain CSS in `site/src/styles/global.css`: colors `--sky-0…5` drawn as rings around a point below the horizon, stars as a `box-shadow` list, and a pixel moon (`site/src/assets/moon.svg`, placed by `.moon`) with a soft moonlight glow (`.moon-glow`). The `horizon` treeline (`site/scenes/horizon.json`) is centered like the map below it, so their tiles line up at any width.
 - **Edge shade:** from where the edge forest starts (17 tiles either side of the center) the map and the horizon trees get darker toward the left and right, in one-tile steps (`--edge-shade`). The sky and the content are not shaded.
+- **Profile links** on the right of the nav: GitHub, LinkedIn and Reddit icons (12×12, brand colors, `site/scripts/make-social-sprites.mjs`) for the matching `contacts` in `profile.json`; a type without a contact is left out. On screen the header card lists only the other contacts (email); the print style shows them all.
 - **Flags** (Flag Pack) mark languages (`profile.json → languageFlags`) and places (`country` on experience/education).
 - **Skill chips** use their element color from `elements.json`.
 

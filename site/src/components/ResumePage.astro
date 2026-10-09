@@ -7,6 +7,9 @@ import WorldSection from './WorldSection.astro';
 import moon from '../assets/moon.svg';
 import barricade from '../../../assets/custom/barricade.png';
 import cone from '../../../assets/custom/cone.png';
+import githubIcon from '../../../assets/custom/github.png';
+import linkedinIcon from '../../../assets/custom/linkedin.png';
+import redditIcon from '../../../assets/custom/reddit.png';
 import rock from '../assets/ui/rock.png';
 import Tile from './Tile.astro';
 import Flag from './Flag.astro';
@@ -23,7 +26,13 @@ const { ui, profile, experience, projects, education, categories, playable } = l
 const base = import.meta.env.BASE_URL.replace(/\/$/, '');
 
 const languageName = (l: string) => new Intl.DisplayNames([l], { type: 'language' }).of(l) ?? l;
-const contactLabel: Record<string, string> = { email: 'Email', github: 'GitHub', linkedin: 'LinkedIn' };
+const contactLabel: Record<string, string> = { email: 'Email', github: 'GitHub', linkedin: 'LinkedIn', reddit: 'Reddit' };
+// Profile links shown as icons on the right of the nav (assets/custom, from scripts/make-social-sprites.mjs)
+const socialIcons: Record<string, ImageMetadata> = { github: githubIcon, linkedin: linkedinIcon, reddit: redditIcon };
+const socials = profile.contacts.filter((c: { type: string }) => c.type in socialIcons);
+
+// which resume PDFs get a download button (the others stay in content/resume/)
+const SHOWN_RESUMES = ['backend'];
 
 const sections = ['about', 'experience', 'projects', 'skills', 'education'] as const;
 
@@ -40,6 +49,17 @@ const horizonStyle = `--horizon-w:calc(${horizon.cols} * var(--map-tile));--hori
     <div class="wrap">
       <ul>
         {sections.map((s) => <li><a href={`#${s}`}>{ui.nav[s]}</a></li>)}
+      </ul>
+      <ul class="social">
+        {
+          socials.map((c: { type: string; url: string }) => (
+            <li>
+              <a href={c.url} rel="me noopener" target="_blank" title={contactLabel[c.type]}>
+                <img src={socialIcons[c.type].src} width="24" height="24" alt={contactLabel[c.type]} />
+              </a>
+            </li>
+          ))
+        }
       </ul>
     </div>
   </nav>
@@ -70,18 +90,32 @@ const horizonStyle = `--horizon-w:calc(${horizon.cols} * var(--map-tile));--hori
       <ul class="contacts">
         {
           profile.contacts.map((c: { type: string; value: string; url: string }) => (
-            <li>
+            // on screen the card shows only email (profile links are the nav icons); print shows all
+            <li class={c.type in socialIcons ? 'print-only' : undefined}>
               <span class="type">{contactLabel[c.type] ?? c.type}</span>
               <a href={c.url} rel={c.type === 'email' ? undefined : 'me noopener'}>{c.value}</a>
+              {c.type === 'email' && (
+                <button type="button" class="copy" data-copy={c.value} data-copied={ui.labels.copied} aria-label={ui.labels.copy} title={ui.labels.copy}>
+                  {/* a page with a folded corner over a second page; after copying, a check mark (art pixels) */}
+                  <svg class="icon-copy" viewBox="0 0 9 10" width="18" height="20" aria-hidden="true">
+                    <path d="M2 0h4v1H2zM2 1h1v6H2zM5 1h2v1H5zM5 2h1v1H5zM7 2h1v1H7zM5 3h4v1H5zM8 4h1v3H8zM2 7h7v1H2zM0 2h1v7H0zM0 9h7v1H0z" />
+                  </svg>
+                  <svg class="icon-done" viewBox="0 0 9 10" width="18" height="20" aria-hidden="true">
+                    <path d="M1 5h1v2H1zM2 6h1v2H2zM3 7h1v2H3zM4 6h1v2H4zM5 5h1v2H5zM6 4h1v2H6zM7 3h1v2H7z" />
+                  </svg>
+                </button>
+              )}
             </li>
           ))
         }
       </ul>
       <div class="actions">
         {
-          profile.resumes.map((r) => (
+          // only the backend resume has a button for now; the AI one (and its label, ui.resume.ai)
+          // stays in content/ so it can come back by adding its kind to SHOWN_RESUMES
+          profile.resumes.filter((r) => SHOWN_RESUMES.includes(r.kind)).map((r) => (
             <a class="button" href={r.url} download={r.fileName}>
-              {ui.nav.resume} · {ui.resume?.[r.kind] ?? r.kind}
+              {SHOWN_RESUMES.length > 1 ? `${ui.nav.resume} · ${ui.resume?.[r.kind] ?? r.kind}` : ui.nav.resume}
             </a>
           ))
         }
@@ -271,6 +305,37 @@ const horizonStyle = `--horizon-w:calc(${horizon.cols} * var(--map-tile));--hori
       const outside = e.clientX < r.left || e.clientX > r.right || e.clientY < r.top || e.clientY > r.bottom;
       if (e.target === dialog && outside) dialog.close();
     });
+
+    // Email copy button: copy the address, show a check mark (and say "Copied!") for a moment.
+    for (const btn of document.querySelectorAll<HTMLButtonElement>('button[data-copy]')) {
+      const label = btn.getAttribute('aria-label')!;
+      let timer = 0;
+      btn.addEventListener('click', async () => {
+        try {
+          await navigator.clipboard.writeText(btn.dataset.copy!);
+        } catch {
+          // no Clipboard API access (old browser, not https): copy from a hidden text field instead
+          const field = Object.assign(document.createElement('textarea'), { value: btn.dataset.copy! });
+          field.setAttribute('readonly', '');
+          field.style.cssText = 'position:fixed;opacity:0';
+          document.body.append(field);
+          field.select();
+          const ok = document.execCommand('copy');
+          field.remove();
+          btn.focus();
+          if (!ok) return; // the address is still there to select by hand
+        }
+        btn.setAttribute('aria-label', btn.dataset.copied!);
+        btn.title = btn.dataset.copied!;
+        btn.classList.add('done');
+        clearTimeout(timer);
+        timer = window.setTimeout(() => {
+          btn.setAttribute('aria-label', label);
+          btn.title = label;
+          btn.classList.remove('done');
+        }, 1600);
+      });
+    }
 
     // Round each content zone up to whole map rows, so its repeated rows are never cut.
     // A row is 32 px × --map-s (see Base.astro), so this reruns when the window resizes.

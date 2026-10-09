@@ -640,6 +640,40 @@ html:has(.construction[open]) {
   color: var(--link);
   text-underline-offset: 3px;
 }
+/* email copy button: a pixel "two boxes" icon, a check mark once copied */
+.contacts .copy {
+  display: inline-grid;
+  margin-left: 6px;
+  padding: 2px;
+  border: 0;
+  background: none;
+  color: var(--muted);
+  cursor: pointer;
+  vertical-align: -4px;
+}
+.contacts .copy svg {
+  grid-area: 1 / 1;
+  fill: currentColor;
+  shape-rendering: crispEdges;
+}
+.contacts .copy:hover {
+  color: var(--ink);
+}
+.contacts .copy .icon-done,
+.contacts .copy.done .icon-copy {
+  visibility: hidden;
+}
+.contacts .copy.done .icon-done {
+  visibility: visible;
+}
+.contacts .copy.done {
+  color: #265c42;
+}
+@media screen {
+  .contacts .print-only {
+    display: none;
+  }
+}
 .contacts .type {
   font-family: var(--font-pixel);
   font-size: 12px;
@@ -703,6 +737,39 @@ html:has(.construction[open]) {
 }
 .site-nav a:hover::before {
   visibility: visible;
+}
+.site-nav .wrap {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+}
+.site-nav ul:not(.social) {
+  flex: 1;
+  min-width: 0;
+}
+/* profile links: brand-color pixel icons on the right (×2, 24 px) */
+.site-nav .social {
+  flex: none;
+  gap: 10px;
+  overflow: visible;
+  padding: 0;
+}
+.site-nav .social a {
+  display: block;
+  transition: transform 0.12s steps(2);
+}
+.site-nav .social a::before {
+  content: none;
+}
+.site-nav .social a:hover,
+.site-nav .social a:focus-visible {
+  transform: translateY(-2px);
+}
+.site-nav .social img {
+  display: block;
+  width: 24px;
+  height: 24px;
+  image-rendering: pixelated;
 }
 
 /* ---------- sections ---------- */
@@ -957,6 +1024,7 @@ html:has(.construction[open]) {
   .site-nav,
   .lang-switch,
   .actions,
+  .contacts .copy,
   .skip-link,
   .site-footer .game-note,
   .band-map,

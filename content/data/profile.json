@@ -5,7 +5,8 @@
   "contacts": [
     { "type": "email", "value": "yongho.nam@mail.utoronto.ca", "url": "mailto:yongho.nam@mail.utoronto.ca" },
     { "type": "github", "value": "github.com/dydgh2011", "url": "https://github.com/dydgh2011" },
-    { "type": "linkedin", "value": "linkedin.com/in/yongho-nam", "url": "https://linkedin.com/in/yongho-nam" }
+    { "type": "linkedin", "value": "linkedin.com/in/yongho-nam", "url": "https://linkedin.com/in/yongho-nam" },
+    { "type": "reddit", "value": "reddit.com/user/MarkNam", "url": "https://www.reddit.com/user/MarkNam/" }
   ],
   "resumePdf": {
     "backend": "resume/Yongho_Nam_Resume_Backend.pdf",

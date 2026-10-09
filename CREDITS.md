@@ -23,6 +23,7 @@ All in `assets/kenney/`, each folder with its original `License.txt`. Created by
 - Pixel moon, `site/src/assets/moon.svg` (site sky)
 - Light-source sprites, `assets/custom/lights.png`, drawn by `site/scripts/make-light-sprites.mjs` in the Tiny packs' palette: wall torch, brazier, campfire, street lamp. The two lit windows are Tiny Town tiles 84 and 88 (Kenney, CC0) with the glass recolored.
 - Construction barricade and traffic cone, `assets/custom/barricade.png` and `cone.png`, drawn by `site/scripts/make-construction-sprites.mjs` in the same palette (the game button's "under construction" dialog)
+- Profile-link icons (GitHub, LinkedIn, Reddit), `assets/custom/github.png`, `linkedin.png`, `reddit.png`, drawn by `site/scripts/make-social-sprites.mjs` as 12×12 pixel versions of each brand's logo (the logos are trademarks of their owners)
 
 ## Fonts
 

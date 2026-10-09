@@ -15,7 +15,7 @@ const warn = (msg: string) => warnings.push(msg);
 const LIMITS = { summary: 70, highlightText: 80, experienceHighlights: 4, projectHighlights: 3 };
 const CATEGORIES = ['languages', 'spoken', 'backend', 'frontend', 'databases', 'infrastructure', 'ai'];
 const SLOTS = ['weapon', 'skill'];
-const ALLOWED_CONTACTS = ['email', 'github', 'linkedin'];
+const ALLOWED_CONTACTS = ['email', 'github', 'linkedin', 'reddit'];
 const KEBAB = /^[a-z0-9]+(-[a-z0-9]+)*$/;
 
 function readJson(rel: string): any {
